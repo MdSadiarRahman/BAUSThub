@@ -14,6 +14,7 @@ firebaseBom = "34.14.0"
 glide = "4.16.0"
 splashscreen = "1.2.0"
 playServicesAuth = "21.6.0"
+cloudinary = "3.1.2"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -32,6 +33,7 @@ firebase-storage = { group = "com.google.firebase", name = "firebase-storage" }
 glide = { group = "com.github.bumptech.glide", name = "glide", version.ref = "glide" }
 androidx-core-splashscreen = { group = "androidx.core", name = "core-splashscreen", version.ref = "splashscreen" }
 play-services-auth = { group = "com.google.android.gms", name = "play-services-auth", version.ref = "playServicesAuth" }
+cloudinary = { group = "com.cloudinary", name = "cloudinary-android", version.ref = "cloudinary" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

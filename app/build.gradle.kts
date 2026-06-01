@@ -56,5 +56,6 @@ dependencies {
     implementation(libs.androidx.core.splashscreen)
 
     implementation(libs.play.services.auth)
+    implementation(libs.cloudinary)
     implementation(libs.glide)
 }
