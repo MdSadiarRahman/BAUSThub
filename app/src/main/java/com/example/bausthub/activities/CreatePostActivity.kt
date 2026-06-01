@@ -15,7 +15,6 @@ import com.example.bausthub.MainActivity
 import com.example.bausthub.R
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import java.util.*
 
 class CreatePostActivity : AppCompatActivity() {
 
@@ -46,16 +45,16 @@ class CreatePostActivity : AppCompatActivity() {
         auth = FirebaseAuth.getInstance()
         db = FirebaseFirestore.getInstance()
 
-        // Initializing Cloudinary (Only if not already initialized)
+        // Initializing Cloudinary with your credentials
         try {
             val config = hashMapOf(
-                "cloud_name" to "YOUR_CLOUD_NAME", // Change this
-                "api_key" to "YOUR_API_KEY",       // Change this
-                "api_secret" to "YOUR_API_SECRET"  // Change this
+                "cloud_name" to "dvjgbhfog",
+                "api_key" to "448829959477278",
+                "api_secret" to "uEx0_-X-2dzKH67PjiHGwBjCZhM"
             )
             MediaManager.init(this, config)
         } catch (e: Exception) {
-            // Already initialized or config error
+            // Already initialized
         }
 
         val btnClose = findViewById<ImageButton>(R.id.btnClose)
@@ -82,7 +81,7 @@ class CreatePostActivity : AppCompatActivity() {
             uploadPost()
         }
 
-        // Navigation logic
+        // Navigation
         btnHome.setOnClickListener {
             startActivity(Intent(this, MainActivity::class.java))
             overridePendingTransition(0, 0)
@@ -115,8 +114,11 @@ class CreatePostActivity : AppCompatActivity() {
 
         setLoading(true)
 
-        // Uploading to Cloudinary
+        // Uploading to Cloudinary using Unsigned upload
+        // Note: Make sure to create an upload preset named 'bausthub_preset' in Cloudinary Settings
         MediaManager.get().upload(imageUri)
+            .option("unsigned", true)
+            .option("upload_preset", "bausthub_preset") 
             .callback(object : UploadCallback {
                 override fun onStart(requestId: String?) {}
                 override fun onProgress(requestId: String?, bytes: Long, totalBytes: Long) {}
@@ -126,7 +128,7 @@ class CreatePostActivity : AppCompatActivity() {
                         savePostToFirestore(imageUrl, caption)
                     } else {
                         setLoading(false)
-                        Toast.makeText(this@CreatePostActivity, "Upload failed", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this@CreatePostActivity, "Upload failed: URL not found", Toast.LENGTH_SHORT).show()
                     }
                 }
                 override fun onError(requestId: String?, error: ErrorInfo?) {
