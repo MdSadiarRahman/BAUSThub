@@ -1,41 +1,41 @@
 {
   "project_info": {
-    "project_number": "982754911074",
-    "project_id": "bausthub-1ad13",
-    "storage_bucket": "bausthub-1ad13.firebasestorage.app"
+    "project_number": "11672635130",
+    "project_id": "bausthub-54b14",
+    "storage_bucket": "bausthub-54b14.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:982754911074:android:6e02d42e4876ccea23423b",
+        "mobilesdk_app_id": "1:11672635130:android:66610c99b98d180459eb43",
         "android_client_info": {
           "package_name": "com.example.bausthub"
         }
       },
       "oauth_client": [
         {
-          "client_id": "982754911074-fuc2ln3ggcje3ujb2pktnihb93jksbgs.apps.googleusercontent.com",
+          "client_id": "11672635130-5jrb27ietganr72oljcnu01ijufra11e.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.example.bausthub",
-            "certificate_hash": "266237ccaf223ea91bad101fbcfbe3a388431b04"
+            "certificate_hash": "4e305a2146c91805c20f25b0539cf3fb5986a905"
           }
         },
         {
-          "client_id": "982754911074-kqrv487t1ifceds5g0bpvlk4v8iqog49.apps.googleusercontent.com",
+          "client_id": "11672635130-gt7ptqob34f0vcickqn6se9pt7nt90u4.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyBlTN8AcgxwpMKhK3BiXw6ePQsPlFu9isE"
+          "current_key": "AIzaSyAJuDrvELQtfNus-IaC7rcvdHqnVt2Vv9M"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "982754911074-kqrv487t1ifceds5g0bpvlk4v8iqog49.apps.googleusercontent.com",
+              "client_id": "11672635130-gt7ptqob34f0vcickqn6se9pt7nt90u4.apps.googleusercontent.com",
               "client_type": 3
             }
           ]

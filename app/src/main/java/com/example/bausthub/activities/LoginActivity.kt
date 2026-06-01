@@ -30,8 +30,9 @@ class LoginActivity : AppCompatActivity() {
 
         auth = FirebaseAuth.getInstance()
 
+        // আপনার নতুন Web Client ID দিয়ে কনফিগার করা হয়েছে
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-            .requestIdToken("982754911074-kqrv487t1ifceds5g0bpvlk4v8iqog49.apps.googleusercontent.com")
+            .requestIdToken("11672635130-gt7ptqob34f0vcickqn6se9pt7nt90u4.apps.googleusercontent.com")
             .requestEmail()
             .build()
 
@@ -48,13 +49,8 @@ class LoginActivity : AppCompatActivity() {
             val email = emailInput.text.toString().trim()
             val password = passwordInput.text.toString().trim()
 
-            if (email.isEmpty()) {
-                emailInput.error = "Enter your email"
-                return@setOnClickListener
-            }
-
-            if (password.isEmpty()) {
-                passwordInput.error = "Enter your password"
+            if (email.isEmpty() || password.isEmpty()) {
+                Toast.makeText(this, "Please fill all fields", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
@@ -64,19 +60,19 @@ class LoginActivity : AppCompatActivity() {
             auth.signInWithEmailAndPassword(email, password)
                 .addOnSuccessListener {
                     progressBar.visibility = View.GONE
-                    Toast.makeText(this, "Login successful", Toast.LENGTH_SHORT).show()
                     startActivity(Intent(this, ProfileActivity::class.java))
                     finish()
                 }
-                .addOnFailureListener { error ->
+                .addOnFailureListener { e ->
                     loginButton.visibility = View.VISIBLE
                     progressBar.visibility = View.GONE
-                    Toast.makeText(this, "Login failed: ${error.message}", Toast.LENGTH_LONG).show()
+                    Toast.makeText(this, "Login failed: ${e.message}", Toast.LENGTH_LONG).show()
                 }
         }
 
         googleButton.setOnClickListener {
-            signInWithGoogle()
+            val signInIntent = googleSignInClient.signInIntent
+            googleSignInLauncher.launch(signInIntent)
         }
 
         goRegisterText.setOnClickListener {
@@ -96,11 +92,6 @@ class LoginActivity : AppCompatActivity() {
         }
     }
 
-    private fun signInWithGoogle() {
-        val signInIntent = googleSignInClient.signInIntent
-        googleSignInLauncher.launch(signInIntent)
-    }
-
     private fun firebaseAuthWithGoogle(idToken: String) {
         val progressBar = findViewById<ProgressBar>(R.id.pbLogin)
         progressBar.visibility = View.VISIBLE
@@ -109,13 +100,12 @@ class LoginActivity : AppCompatActivity() {
         auth.signInWithCredential(credential)
             .addOnSuccessListener {
                 progressBar.visibility = View.GONE
-                Toast.makeText(this, "Login successful", Toast.LENGTH_SHORT).show()
                 startActivity(Intent(this, ProfileActivity::class.java))
                 finish()
             }
-            .addOnFailureListener { error ->
+            .addOnFailureListener { e ->
                 progressBar.visibility = View.GONE
-                Toast.makeText(this, "Auth failed: ${error.message}", Toast.LENGTH_LONG).show()
+                Toast.makeText(this, "Auth failed: ${e.message}", Toast.LENGTH_LONG).show()
             }
     }
 }

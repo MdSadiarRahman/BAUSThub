@@ -42,31 +42,20 @@ class ProfileSetupActivity : AppCompatActivity() {
             val batch = batchInput.text.toString().trim()
 
             if (uid == null) {
-                Toast.makeText(this, "User not found. Please login again.", Toast.LENGTH_SHORT).show()
-                startActivity(Intent(this, LoginActivity::class.java))
-                finish()
+                Toast.makeText(this, "User not logged in!", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
-            if (studentId.isEmpty()) {
-                studentIdInput.error = "Enter student ID"
-                return@setOnClickListener
-            }
-
-            if (department.isEmpty()) {
-                departmentInput.error = "Enter department"
-                return@setOnClickListener
-            }
-
-            if (batch.isEmpty()) {
-                batchInput.error = "Enter batch"
+            if (studentId.isEmpty() || department.isEmpty() || batch.isEmpty()) {
+                Toast.makeText(this, "Please fill all fields", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
             saveButton.visibility = View.GONE
             progressBar.visibility = View.VISIBLE
 
-            val profile = hashMapOf(
+            // Firestore-এ ডাটা রাখার জন্য Map তৈরি
+            val userProfile = hashMapOf(
                 "uid" to uid,
                 "name" to name,
                 "email" to email,
@@ -75,19 +64,19 @@ class ProfileSetupActivity : AppCompatActivity() {
                 "batch" to batch
             )
 
-            db.collection("students")
-                .document(uid)
-                .set(profile)
+            // "students" নামক কালেকশনে ডাটা সেভ করা
+            db.collection("students").document(uid)
+                .set(userProfile)
                 .addOnSuccessListener {
                     progressBar.visibility = View.GONE
-                    Toast.makeText(this, "Profile saved successfully", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, "Profile saved to Firestore!", Toast.LENGTH_SHORT).show()
                     startActivity(Intent(this, ProfileActivity::class.java))
                     finish()
                 }
-                .addOnFailureListener { error ->
+                .addOnFailureListener { e ->
                     saveButton.visibility = View.VISIBLE
                     progressBar.visibility = View.GONE
-                    Toast.makeText(this, "Failed to save profile: ${error.message}", Toast.LENGTH_LONG).show()
+                    Toast.makeText(this, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
                 }
         }
     }
