@@ -15,14 +15,23 @@ class SearchActivity : AppCompatActivity() {
 
         val btnHome = findViewById<ImageButton>(R.id.btnNavHome)
         val btnProfile = findViewById<ImageButton>(R.id.btnNavProfile)
+        val btnAdd = findViewById<ImageButton>(R.id.btnAdd)
 
         btnHome.setOnClickListener {
             startActivity(Intent(this, MainActivity::class.java))
+            overridePendingTransition(0, 0)
             finish()
         }
 
         btnProfile.setOnClickListener {
             startActivity(Intent(this, ProfileActivity::class.java))
+            overridePendingTransition(0, 0)
+            finish()
+        }
+
+        btnAdd.setOnClickListener {
+            startActivity(Intent(this, CreatePostActivity::class.java))
+            overridePendingTransition(0, 0)
             finish()
         }
     }

@@ -3,12 +3,11 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/feed_bg">
+    android:background="@color/bg_light">
 
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:fillViewport="true"
         app:layout_constraintBottom_toTopOf="@+id/bottomNavContainer"
         app:layout_constraintTop_toTopOf="parent">
 
@@ -18,132 +17,135 @@
             android:orientation="vertical"
             android:padding="24dp">
 
-            <TextView
-                android:id="@+id/tvFeedTitle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Feed"
-                android:textColor="@color/baust_green"
-                android:textSize="42sp"
-                android:textStyle="bold|italic" />
-
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:orientation="vertical">
+            <!-- Header -->
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:letterSpacing="0.1"
-                    android:text="DISCOVER CAMPUS"
-                    android:textColor="@color/discover_text"
-                    android:textSize="14sp"
+                    android:text="Create Post"
+                    android:textColor="@color/text_dark"
+                    android:textSize="24sp"
                     android:textStyle="bold" />
 
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="3dp"
-                    android:layout_marginTop="2dp"
-                    android:background="@color/baust_yellow" />
-            </LinearLayout>
+                <ImageButton
+                    android:id="@+id/btnClose"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:layout_alignParentEnd="true"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:src="@android:drawable/ic_menu_close_clear_cancel"
+                    app:tint="@color/text_grey"
+                    android:contentDescription="Close" />
+            </RelativeLayout>
 
-            <LinearLayout
+            <!-- Image Upload Area -->
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/btnUploadImage"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="32dp"
-                android:orientation="horizontal">
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="120dp"
-                    android:layout_marginEnd="10dp"
-                    android:layout_weight="1"
-                    android:background="@drawable/card_active_now"
-                    android:elevation="2dp"
-                    android:gravity="center_vertical"
-                    android:orientation="vertical"
-                    android:padding="20dp">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="ACTIVE NOW"
-                        android:textColor="@color/discover_text"
-                        android:textSize="12sp"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
-                        android:text="1,248"
-                        android:textColor="@color/text_dark"
-                        android:textSize="22sp"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Hubbers"
-                        android:textColor="@color/text_dark"
-                        android:textSize="22sp"
-                        android:textStyle="bold" />
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="120dp"
-                    android:layout_marginStart="10dp"
-                    android:layout_weight="1"
-                    android:background="@drawable/card_trending"
-                    android:elevation="2dp"
-                    android:gravity="center_vertical"
-                    android:orientation="vertical"
-                    android:padding="20dp">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="TRENDING"
-                        android:textColor="@color/discover_text"
-                        android:textSize="12sp"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="12dp"
-                        android:text="#BAUST_Life"
-                        android:textColor="@color/baust_green"
-                        android:textSize="20sp"
-                        android:textStyle="bold|italic" />
-                </LinearLayout>
-            </LinearLayout>
-
-            <FrameLayout
-                android:layout_width="match_parent"
-                android:layout_height="250dp"
-                android:layout_marginTop="32dp"
+                android:layout_height="350dp"
+                android:layout_marginTop="24dp"
                 android:background="@drawable/dashed_border_card"
-                android:padding="20dp">
+                android:clickable="true"
+                android:focusable="true">
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:orientation="vertical"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent">
+
+                    <View
+                        android:layout_width="80dp"
+                        android:layout_height="80dp"
+                        android:background="@drawable/google_button_bg" />
+
+                    <ImageView
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:layout_marginTop="-60dp"
+                        android:src="@drawable/ic_add_photo"
+                        android:contentDescription="Add Photo Icon" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="32dp"
+                        android:text="Add an image"
+                        android:textColor="@color/text_dark"
+                        android:textSize="20sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:text="Pick a moment from your campus life"
+                        android:textColor="@color/text_grey"
+                        android:textSize="14sp" />
+                </LinearLayout>
+
+                <ImageView
+                    android:id="@+id/ivSelectedImage"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scaleType="centerCrop"
+                    android:visibility="gone"
+                    android:contentDescription="Selected Image" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <!-- Caption Field -->
+            <EditText
+                android:id="@+id/etCaption"
+                android:layout_width="match_parent"
+                android:layout_height="180dp"
+                android:layout_marginTop="24dp"
+                android:background="@drawable/edit_text_bg"
+                android:gravity="top"
+                android:hint="Write a caption..."
+                android:padding="20dp"
+                android:textColor="@color/text_dark"
+                android:textColorHint="@color/text_grey"
+                android:textSize="18sp"
+                android:inputType="textMultiLine" />
+
+            <!-- Share Button -->
+            <LinearLayout
+                android:id="@+id/btnShare"
+                android:layout_width="match_parent"
+                android:layout_height="64dp"
+                android:layout_marginTop="24dp"
+                android:background="@drawable/button_bg"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center">
+
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_marginEnd="12dp"
+                    android:src="@drawable/ic_send"
+                    android:contentDescription="Send Icon" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:gravity="center"
-                    android:letterSpacing="0.05"
-                    android:text="NO ACTIVITY RECORDED YET"
-                    android:textColor="@color/discover_text"
-                    android:textSize="16sp"
+                    android:text="Share to BAUSThub"
+                    android:textColor="@color/white"
+                    android:textSize="18sp"
                     android:textStyle="bold" />
-            </FrameLayout>
+            </LinearLayout>
 
         </LinearLayout>
     </ScrollView>
 
+    <!-- Bottom Navigation Bar (Inactive state for +) -->
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/bottomNavContainer"
         android:layout_width="match_parent"
@@ -163,12 +165,11 @@
             <ImageButton
                 android:id="@+id/btnNavHome"
                 android:layout_width="0dp"
-                android:layout_height="48dp"
+                android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:layout_margin="8dp"
-                android:background="@drawable/nav_item_bg"
+                android:background="?attr/selectableItemBackgroundBorderless"
                 android:src="@drawable/ic_nav_home"
-                app:tint="@color/baust_green"
+                app:tint="@color/text_grey"
                 android:contentDescription="Home" />
 
             <ImageButton
@@ -209,7 +210,7 @@
         </LinearLayout>
 
         <ImageButton
-            android:id="@+id/btnAdd"
+            android:id="@+id/btnAddActive"
             android:layout_width="60dp"
             android:layout_height="60dp"
             android:background="@drawable/circle_solid_yellow"
@@ -223,7 +224,7 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_bias="0.2"
             app:tint="@color/white"
-            android:contentDescription="Add" />
+            android:contentDescription="Add Active" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

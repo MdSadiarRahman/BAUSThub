@@ -10,6 +10,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.example.bausthub.MainActivity
 import com.example.bausthub.R
 import com.example.bausthub.activities.SearchActivity
+import com.example.bausthub.activities.CreatePostActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 
@@ -34,14 +35,23 @@ class ProfileActivity : AppCompatActivity() {
         val btnSignOut = findViewById<TextView>(R.id.btnSignOut)
         val btnHome = findViewById<ImageButton>(R.id.btnNavHome)
         val btnSearch = findViewById<ImageButton>(R.id.btnNavSearch)
+        val btnAdd = findViewById<ImageButton>(R.id.btnAdd)
 
         btnHome.setOnClickListener {
             startActivity(Intent(this, MainActivity::class.java))
+            overridePendingTransition(0, 0)
             finish()
         }
 
         btnSearch.setOnClickListener {
             startActivity(Intent(this, SearchActivity::class.java))
+            overridePendingTransition(0, 0)
+            finish()
+        }
+
+        btnAdd.setOnClickListener {
+            startActivity(Intent(this, CreatePostActivity::class.java))
+            overridePendingTransition(0, 0)
             finish()
         }
 

@@ -6,6 +6,7 @@ import android.widget.ImageButton
 import androidx.appcompat.app.AppCompatActivity
 import com.example.bausthub.activities.ProfileActivity
 import com.example.bausthub.activities.SearchActivity
+import com.example.bausthub.activities.CreatePostActivity
 
 class MainActivity : AppCompatActivity() {
 
@@ -26,9 +27,10 @@ class MainActivity : AppCompatActivity() {
             startActivity(Intent(this, SearchActivity::class.java))
             overridePendingTransition(0, 0)
         }
-        
+
         btnAdd.setOnClickListener {
-            // Add post logic here
+            startActivity(Intent(this, CreatePostActivity::class.java))
+            overridePendingTransition(0, 0)
         }
     }
 }
