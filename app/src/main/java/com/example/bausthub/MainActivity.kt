@@ -7,6 +7,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.example.bausthub.activities.ProfileActivity
 import com.example.bausthub.activities.SearchActivity
 import com.example.bausthub.activities.CreatePostActivity
+import com.example.bausthub.activities.NotificationsActivity
 
 class MainActivity : AppCompatActivity() {
 
@@ -16,6 +17,7 @@ class MainActivity : AppCompatActivity() {
 
         val navProfile = findViewById<ImageButton>(R.id.btnNavProfile)
         val navSearch = findViewById<ImageButton>(R.id.btnNavSearch)
+        val navNotifications = findViewById<ImageButton>(R.id.btnNavNotifications)
         val btnAdd = findViewById<ImageButton>(R.id.btnAdd)
 
         navProfile.setOnClickListener {
@@ -25,6 +27,11 @@ class MainActivity : AppCompatActivity() {
 
         navSearch.setOnClickListener {
             startActivity(Intent(this, SearchActivity::class.java))
+            overridePendingTransition(0, 0)
+        }
+
+        navNotifications.setOnClickListener {
+            startActivity(Intent(this, NotificationsActivity::class.java))
             overridePendingTransition(0, 0)
         }
 
