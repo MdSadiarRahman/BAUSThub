@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "982754911074",
+    "project_id": "bausthub-1ad13",
+    "storage_bucket": "bausthub-1ad13.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:982754911074:android:6e02d42e4876ccea23423b",
+        "android_client_info": {
+          "package_name": "com.example.bausthub"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "982754911074-fuc2ln3ggcje3ujb2pktnihb93jksbgs.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.bausthub",
+            "certificate_hash": "266237ccaf223ea91bad101fbcfbe3a388431b04"
+          }
+        },
+        {
+          "client_id": "982754911074-kqrv487t1ifceds5g0bpvlk4v8iqog49.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBlTN8AcgxwpMKhK3BiXw6ePQsPlFu9isE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "982754911074-kqrv487t1ifceds5g0bpvlk4v8iqog49.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
