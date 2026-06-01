@@ -55,5 +55,6 @@ dependencies {
     implementation(libs.androidx.activity.ktx)
     implementation(libs.androidx.core.splashscreen)
 
+    implementation(libs.play.services.auth)
     implementation(libs.glide)
 }

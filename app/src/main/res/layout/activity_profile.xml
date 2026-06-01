@@ -280,7 +280,7 @@
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:background="?attr/selectableItemBackgroundBorderless"
-                android:src="@android:drawable/ic_menu_today"
+                android:src="@drawable/ic_nav_home"
                 app:tint="@color/text_grey"
                 android:contentDescription="Home" />
 
@@ -290,7 +290,7 @@
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:background="?attr/selectableItemBackgroundBorderless"
-                android:src="@android:drawable/ic_menu_search"
+                android:src="@drawable/ic_nav_search"
                 app:tint="@color/text_grey"
                 android:contentDescription="Search" />
 
@@ -305,7 +305,7 @@
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:background="?attr/selectableItemBackgroundBorderless"
-                android:src="@android:drawable/ic_popup_reminder"
+                android:src="@drawable/ic_nav_notifications"
                 app:tint="@color/text_grey"
                 android:contentDescription="Notifications" />
 
@@ -316,7 +316,7 @@
                 android:layout_weight="1"
                 android:layout_margin="8dp"
                 android:background="@drawable/nav_item_bg"
-                android:src="@android:drawable/ic_menu_myplaces"
+                android:src="@drawable/ic_nav_profile"
                 app:tint="@color/baust_green"
                 android:contentDescription="Profile" />
 
@@ -330,7 +330,7 @@
             android:elevation="10dp"
             android:padding="12dp"
             android:scaleType="centerInside"
-            android:src="@android:drawable/ic_menu_add"
+            android:src="@drawable/ic_nav_add"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
