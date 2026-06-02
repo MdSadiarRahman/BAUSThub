@@ -1,5 +1,6 @@
 package com.example.bausthub.adapters
 
+import android.content.Intent
 import android.graphics.Typeface
 import android.text.Spannable
 import android.text.SpannableString
@@ -13,6 +14,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.bausthub.R
+import com.example.bausthub.activities.ImageViewerActivity
 import com.example.bausthub.models.Post
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.firebase.auth.FirebaseAuth
@@ -62,6 +64,15 @@ class PostAdapter(private var posts: List<Post>) : RecyclerView.Adapter<PostAdap
             Glide.with(holder.itemView.context)
                 .load(post.imageUrl)
                 .into(holder.ivPostImage)
+
+            // Image Click to View Full Screen
+            holder.ivPostImage.setOnClickListener {
+                val intent = Intent(holder.itemView.context, ImageViewerActivity::class.java)
+                intent.putExtra("imageUrl", post.imageUrl)
+                intent.putExtra("authorName", post.authorName)
+                intent.putExtra("caption", post.caption)
+                holder.itemView.context.startActivity(intent)
+            }
         } else {
             holder.ivPostImage.visibility = View.GONE
         }

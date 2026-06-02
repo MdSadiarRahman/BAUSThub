@@ -42,6 +42,11 @@
             android:exported="false" />
 
         <activity
+            android:name=".activities.ImageViewerActivity"
+            android:theme="@style/Theme.BAUSThub"
+            android:exported="false" />
+
+        <activity
             android:name=".activities.NotificationsActivity"
             android:exported="false" />
 
