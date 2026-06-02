@@ -8,6 +8,7 @@ import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.example.bausthub.MainActivity
 import com.example.bausthub.R
 import com.example.bausthub.adapters.PostAdapter
@@ -26,6 +27,7 @@ class ProfileActivity : AppCompatActivity() {
     private lateinit var tvName: TextView
     private lateinit var tvEmail: TextView
     private lateinit var rvProfileFeed: RecyclerView
+    private lateinit var ivProfilePic: ImageView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -37,6 +39,7 @@ class ProfileActivity : AppCompatActivity() {
         tvName = findViewById(R.id.tvProfileName)
         tvEmail = findViewById(R.id.tvProfileBio) 
         rvProfileFeed = findViewById(R.id.rvProfileFeed)
+        ivProfilePic = findViewById(R.id.ivProfilePic)
 
         // Setup RecyclerView
         rvProfileFeed.layoutManager = LinearLayoutManager(this)
@@ -49,8 +52,13 @@ class ProfileActivity : AppCompatActivity() {
         val btnNotifications = findViewById<ImageButton>(R.id.btnNavNotifications)
         val btnAdd = findViewById<ImageButton>(R.id.btnAdd)
         
+        val btnEditProfile = findViewById<Button>(R.id.btnEditProfile)
         val btnMyPosts = findViewById<LinearLayout>(R.id.btnMyPosts)
         val btnVault = findViewById<LinearLayout>(R.id.btnVault)
+        
+        btnEditProfile.setOnClickListener {
+            startActivity(Intent(this, SettingsActivity::class.java))
+        }
 
         btnMyPosts.setOnClickListener {
             loadUserPosts()
@@ -105,7 +113,7 @@ class ProfileActivity : AppCompatActivity() {
 
         // Set listeners for menu items
         popupView.findViewById<LinearLayout>(R.id.menuSettings).setOnClickListener {
-            Toast.makeText(this, "Settings clicked", Toast.LENGTH_SHORT).show()
+            startActivity(Intent(this, SettingsActivity::class.java))
             popupWindow.dismiss()
         }
 
@@ -178,6 +186,11 @@ class ProfileActivity : AppCompatActivity() {
                     val bio = document.getString("bio") ?: "BAUSTian Hubber"
                     
                     tvEmail.text = bio
+
+                    val profilePicUrl = document.getString("profileImage")
+                    if (!profilePicUrl.isNullOrEmpty()) {
+                        Glide.with(this).load(profilePicUrl).into(ivProfilePic)
+                    }
                 }
             }
     }
