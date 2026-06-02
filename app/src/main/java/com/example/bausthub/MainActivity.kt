@@ -3,6 +3,7 @@ package com.example.bausthub
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
+import android.widget.AbsListView
 import android.widget.ImageButton
 import android.widget.LinearLayout
 import android.widget.Toast
@@ -16,6 +17,7 @@ import com.example.bausthub.activities.CreatePostActivity
 import com.example.bausthub.activities.NotificationsActivity
 import com.example.bausthub.adapters.PostAdapter
 import com.example.bausthub.models.Post
+import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 
@@ -28,6 +30,10 @@ class MainActivity : AppCompatActivity() {
     private lateinit var postAdapter: PostAdapter
     private var postList = mutableListOf<Post>()
     private lateinit var tvActiveUsers: android.widget.TextView
+    
+    private var lastVisible: DocumentSnapshot? = null
+    private var isScrolling = false
+    private var isLastItemReached = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -50,8 +56,34 @@ class MainActivity : AppCompatActivity() {
         postAdapter = PostAdapter(postList)
         rvFeed.adapter = postAdapter
 
+        // Scroll Listener for Pagination (Intersection Observer like behavior)
+        rvFeed.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                super.onScrolled(recyclerView, dx, dy)
+                
+                val layoutManager = recyclerView.layoutManager as LinearLayoutManager
+                val firstVisibleItemPosition = layoutManager.findFirstVisibleItemPosition()
+                val visibleItemCount = layoutManager.childCount
+                val totalItemCount = layoutManager.itemCount
+
+                if (isScrolling && (firstVisibleItemPosition + visibleItemCount >= totalItemCount)) {
+                    isScrolling = false
+                    loadMoreFeed()
+                }
+            }
+
+            override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+                super.onScrollStateChanged(recyclerView, newState)
+                if (newState == AbsListView.OnScrollListener.SCROLL_STATE_TOUCH_SCROLL) {
+                    isScrolling = true
+                }
+            }
+        })
+
         // Swipe to Refresh
         swipeRefresh.setOnRefreshListener {
+            isLastItemReached = false
+            lastVisible = null
             loadFeed()
         }
 
@@ -91,13 +123,10 @@ class MainActivity : AppCompatActivity() {
     private fun loadFeed() {
         db.collection("posts")
             .orderBy("timestamp", Query.Direction.DESCENDING)
-            .addSnapshotListener { snapshot, e ->
-                if (e != null) {
-                    Toast.makeText(this, "Error loading feed: ${e.message}", Toast.LENGTH_SHORT).show()
-                    return@addSnapshotListener
-                }
-
-                if (snapshot != null) {
+            .limit(10)
+            .get()
+            .addOnSuccessListener { snapshot ->
+                if (!snapshot.isEmpty) {
                     postList.clear()
                     for (doc in snapshot.documents) {
                         val post = doc.toObject(Post::class.java)
@@ -108,17 +137,59 @@ class MainActivity : AppCompatActivity() {
                     }
                     
                     postAdapter.updateData(postList)
-                    swipeRefresh.isRefreshing = false
-
-                    // Show empty state if no posts
-                    if (postList.isEmpty()) {
-                        emptyState.visibility = View.VISIBLE
-                        rvFeed.visibility = View.GONE
-                    } else {
-                        emptyState.visibility = View.GONE
-                        rvFeed.visibility = View.VISIBLE
+                    lastVisible = snapshot.documents[snapshot.size() - 1]
+                    
+                    if (snapshot.size() < 10) {
+                        isLastItemReached = true
                     }
                 }
+                
+                swipeRefresh.isRefreshing = false
+                updateEmptyState()
             }
+            .addOnFailureListener { e ->
+                Toast.makeText(this, "Error loading feed: ${e.message}", Toast.LENGTH_SHORT).show()
+                swipeRefresh.isRefreshing = false
+            }
+    }
+
+    private fun loadMoreFeed() {
+        if (isLastItemReached) return
+
+        db.collection("posts")
+            .orderBy("timestamp", Query.Direction.DESCENDING)
+            .startAfter(lastVisible!!)
+            .limit(10)
+            .get()
+            .addOnSuccessListener { snapshot ->
+                if (!snapshot.isEmpty) {
+                    for (doc in snapshot.documents) {
+                        val post = doc.toObject(Post::class.java)
+                        if (post != null) {
+                            post.postId = doc.id
+                            postList.add(post)
+                        }
+                    }
+                    
+                    postAdapter.updateData(postList)
+                    lastVisible = snapshot.documents[snapshot.size() - 1]
+
+                    if (snapshot.size() < 10) {
+                        isLastItemReached = true
+                    }
+                } else {
+                    isLastItemReached = true
+                }
+            }
+    }
+
+    private fun updateEmptyState() {
+        if (postList.isEmpty()) {
+            emptyState.visibility = View.VISIBLE
+            rvFeed.visibility = View.GONE
+        } else {
+            emptyState.visibility = View.GONE
+            rvFeed.visibility = View.VISIBLE
+        }
     }
 }

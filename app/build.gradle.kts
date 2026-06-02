@@ -59,4 +59,8 @@ dependencies {
     implementation(libs.play.services.auth)
     implementation(libs.cloudinary)
     implementation(libs.glide)
+
+    testImplementation(libs.junit)
+    androidTestImplementation(libs.androidx.junit)
+    androidTestImplementation(libs.androidx.espresso.core)
 }
