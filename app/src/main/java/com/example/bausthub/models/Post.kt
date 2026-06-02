@@ -8,5 +8,9 @@ data class Post(
     val authorName: String = "",
     val imageUrl: String = "",
     val caption: String = "",
-    val timestamp: Long = 0
+    val timestamp: Long = 0,
+    val likesCount: Int = 0,
+    val commentsCount: Int = 0,
+    @get:Exclude var isLiked: Boolean = false,
+    @get:Exclude var isBookmarked: Boolean = false
 )

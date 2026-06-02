@@ -40,7 +40,8 @@ class PostAdapter(private var posts: List<Post>) : RecyclerView.Adapter<PostAdap
 
     override fun onBindViewHolder(holder: PostViewHolder, position: Int) {
         val post = posts[position]
-        val currentUserId = FirebaseAuth.getInstance().currentUser?.uid
+        val currentUserId = FirebaseAuth.getInstance().currentUser?.uid ?: ""
+        val db = FirebaseFirestore.getInstance()
 
         holder.tvAuthorName.text = post.authorName
         
@@ -73,10 +74,57 @@ class PostAdapter(private var posts: List<Post>) : RecyclerView.Adapter<PostAdap
         ).toString().uppercase()
         holder.tvPostTime.text = relativeTime
 
-        // Interactions (Mock for now, can be connected to DB later)
+        // --- Interaction Logic ---
+
+        // Like Status Check
+        db.collection("posts").document(post.postId).collection("likes").document(currentUserId)
+            .addSnapshotListener { snapshot, _ ->
+                if (snapshot != null && snapshot.exists()) {
+                    holder.btnLike.setImageResource(R.drawable.ic_like) // Should be filled icon
+                    holder.btnLike.setColorFilter(android.graphics.Color.RED)
+                } else {
+                    holder.btnLike.setImageResource(R.drawable.ic_like) // Outline icon
+                    holder.btnLike.setColorFilter(android.graphics.Color.GRAY)
+                }
+            }
+
+        // Like Click
         holder.btnLike.setOnClickListener {
-            Toast.makeText(holder.itemView.context, "Liked!", Toast.LENGTH_SHORT).show()
+            val likeRef = db.collection("posts").document(post.postId).collection("likes").document(currentUserId)
+            likeRef.get().addOnSuccessListener { doc ->
+                if (doc.exists()) {
+                    likeRef.delete()
+                    db.collection("posts").document(post.postId).update("likesCount", com.google.firebase.firestore.FieldValue.increment(-1))
+                } else {
+                    likeRef.set(hashMapOf("timestamp" to System.currentTimeMillis()))
+                    db.collection("posts").document(post.postId).update("likesCount", com.google.firebase.firestore.FieldValue.increment(1))
+                }
+            }
         }
+
+        // Bookmark Click
+        holder.btnBookmark.setOnClickListener {
+            val savedRef = db.collection("students").document(currentUserId).collection("savedPosts").document(post.postId)
+            savedRef.get().addOnSuccessListener { doc ->
+                if (doc.exists()) {
+                    savedRef.delete()
+                    Toast.makeText(holder.itemView.context, "Removed from Vault", Toast.LENGTH_SHORT).show()
+                    holder.btnBookmark.setColorFilter(android.graphics.Color.GRAY)
+                } else {
+                    savedRef.set(post)
+                    Toast.makeText(holder.itemView.context, "Saved to Vault", Toast.LENGTH_SHORT).show()
+                    holder.btnBookmark.setColorFilter(android.graphics.Color.parseColor("#FFD700")) // Yellow
+                }
+            }
+        }
+
+        // Comment Click
+        holder.btnComment.setOnClickListener {
+            showCommentsDialog(holder.itemView.context, post)
+        }
+
+        // Like Count display
+        holder.tvLikeCount.text = "${post.likesCount} BAUSTIANS LIKED"
 
         // More Menu
         holder.btnMore.setOnClickListener {
@@ -105,6 +153,36 @@ class PostAdapter(private var posts: List<Post>) : RecyclerView.Adapter<PostAdap
             dialog.setContentView(view)
             dialog.show()
         }
+    }
+
+    private fun showCommentsDialog(context: android.content.Context, post: Post) {
+        val dialog = BottomSheetDialog(context)
+        val view = LayoutInflater.from(context).inflate(R.layout.dialog_comments, null, false)
+        
+        val etComment = view.findViewById<EditText>(R.id.etComment)
+        val btnSend = view.findViewById<ImageButton>(R.id.btnSendComment)
+        val db = FirebaseFirestore.getInstance()
+        val currentUserId = FirebaseAuth.getInstance().currentUser?.uid ?: ""
+
+        btnSend.setOnClickListener {
+            val text = etComment.text.toString().trim()
+            if (text.isNotEmpty()) {
+                val comment = hashMapOf(
+                    "userId" to currentUserId,
+                    "text" to text,
+                    "timestamp" to System.currentTimeMillis()
+                )
+                db.collection("posts").document(post.postId).collection("comments")
+                    .add(comment)
+                    .addOnSuccessListener {
+                        etComment.text.clear()
+                        db.collection("posts").document(post.postId).update("commentsCount", com.google.firebase.firestore.FieldValue.increment(1))
+                    }
+            }
+        }
+
+        dialog.setContentView(view)
+        dialog.show()
     }
 
     private fun showEditDialog(context: android.content.Context, post: Post) {

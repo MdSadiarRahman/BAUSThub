@@ -73,12 +73,13 @@ class CreatePostActivity : AppCompatActivity() {
 
         btnClose.setOnClickListener { finish() }
 
-        btnUploadImage.setOnClickListener {
-            pickImage.launch("image/*")
-        }
-
         btnShare.setOnClickListener {
             uploadPost()
+        }
+
+        // Setup Image Picker with High-Speed Workflow (Resize/Compress can be added here)
+        btnUploadImage.setOnClickListener {
+            pickImage.launch("image/*")
         }
 
         // Navigation

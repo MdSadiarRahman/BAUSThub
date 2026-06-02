@@ -9,6 +9,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.example.bausthub.activities.ProfileActivity
 import com.example.bausthub.activities.SearchActivity
 import com.example.bausthub.activities.CreatePostActivity
@@ -22,9 +23,11 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var db: FirebaseFirestore
     private lateinit var rvFeed: RecyclerView
+    private lateinit var swipeRefresh: SwipeRefreshLayout
     private lateinit var emptyState: LinearLayout
     private lateinit var postAdapter: PostAdapter
     private var postList = mutableListOf<Post>()
+    private lateinit var tvActiveUsers: android.widget.TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -34,7 +37,9 @@ class MainActivity : AppCompatActivity() {
 
         // Views
         rvFeed = findViewById(R.id.rvFeed)
+        swipeRefresh = findViewById(R.id.swipeRefresh)
         emptyState = findViewById(R.id.emptyState)
+        tvActiveUsers = findViewById(R.id.tvActiveUsers)
         val navProfile = findViewById<ImageButton>(R.id.btnNavProfile)
         val navSearch = findViewById<ImageButton>(R.id.btnNavSearch)
         val navNotifications = findViewById<ImageButton>(R.id.btnNavNotifications)
@@ -44,6 +49,11 @@ class MainActivity : AppCompatActivity() {
         rvFeed.layoutManager = LinearLayoutManager(this)
         postAdapter = PostAdapter(postList)
         rvFeed.adapter = postAdapter
+
+        // Swipe to Refresh
+        swipeRefresh.setOnRefreshListener {
+            loadFeed()
+        }
 
         // Navigation
         navProfile.setOnClickListener {
@@ -67,6 +77,15 @@ class MainActivity : AppCompatActivity() {
         }
 
         loadFeed()
+        updateActiveUsers()
+    }
+
+    private fun updateActiveUsers() {
+        // Simple mock for real-time active users (can be linked to a real presence system)
+        db.collection("students").addSnapshotListener { snapshot, _ ->
+            val count = snapshot?.size() ?: 0
+            tvActiveUsers.text = "● ${count}+ Active"
+        }
     }
 
     private fun loadFeed() {
@@ -89,6 +108,7 @@ class MainActivity : AppCompatActivity() {
                     }
                     
                     postAdapter.updateData(postList)
+                    swipeRefresh.isRefreshing = false
 
                     // Show empty state if no posts
                     if (postList.isEmpty()) {
