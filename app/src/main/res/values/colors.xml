@@ -11,4 +11,5 @@
     <color name="border_grey">#E2E8F0</color>
     <color name="feed_bg">#F2F6F3</color>
     <color name="discover_text">#8A9A9F</color>
+    <color name="insta_light_grey">#DBDBDB</color>
 </resources>

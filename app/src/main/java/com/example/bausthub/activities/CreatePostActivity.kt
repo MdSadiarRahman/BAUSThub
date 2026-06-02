@@ -105,38 +105,42 @@ class CreatePostActivity : AppCompatActivity() {
     }
 
     private fun uploadPost() {
-        val caption = etCaption.text.toString()
+        val caption = etCaption.text.toString().trim()
 
-        if (imageUri == null) {
-            Toast.makeText(this, "Please select an image first", Toast.LENGTH_SHORT).show()
+        if (caption.isEmpty() && imageUri == null) {
+            Toast.makeText(this, "Please write something or select an image", Toast.LENGTH_SHORT).show()
             return
         }
 
         setLoading(true)
 
-        // Uploading to Cloudinary using Unsigned upload
-        // Note: Make sure to create an upload preset named 'bausthub_preset' in Cloudinary Settings
-        MediaManager.get().upload(imageUri)
-            .option("unsigned", true)
-            .option("upload_preset", "bausthub_preset") 
-            .callback(object : UploadCallback {
-                override fun onStart(requestId: String?) {}
-                override fun onProgress(requestId: String?, bytes: Long, totalBytes: Long) {}
-                override fun onSuccess(requestId: String?, resultData: Map<*, *>?) {
-                    val imageUrl = resultData?.get("secure_url") as? String
-                    if (imageUrl != null) {
-                        savePostToFirestore(imageUrl, caption)
-                    } else {
-                        setLoading(false)
-                        Toast.makeText(this@CreatePostActivity, "Upload failed: URL not found", Toast.LENGTH_SHORT).show()
+        if (imageUri != null) {
+            // Uploading to Cloudinary if image exists
+            MediaManager.get().upload(imageUri)
+                .option("unsigned", true)
+                .option("upload_preset", "bausthub_preset")
+                .callback(object : UploadCallback {
+                    override fun onStart(requestId: String?) {}
+                    override fun onProgress(requestId: String?, bytes: Long, totalBytes: Long) {}
+                    override fun onSuccess(requestId: String?, resultData: Map<*, *>?) {
+                        val imageUrl = resultData?.get("secure_url") as? String
+                        if (imageUrl != null) {
+                            savePostToFirestore(imageUrl, caption)
+                        } else {
+                            setLoading(false)
+                            Toast.makeText(this@CreatePostActivity, "Upload failed: URL not found", Toast.LENGTH_SHORT).show()
+                        }
                     }
-                }
-                override fun onError(requestId: String?, error: ErrorInfo?) {
-                    setLoading(false)
-                    Toast.makeText(this@CreatePostActivity, "Error: ${error?.description}", Toast.LENGTH_SHORT).show()
-                }
-                override fun onReschedule(requestId: String?, error: ErrorInfo?) {}
-            }).dispatch()
+                    override fun onError(requestId: String?, error: ErrorInfo?) {
+                        setLoading(false)
+                        Toast.makeText(this@CreatePostActivity, "Error: ${error?.description}", Toast.LENGTH_SHORT).show()
+                    }
+                    override fun onReschedule(requestId: String?, error: ErrorInfo?) {}
+                }).dispatch()
+        } else {
+            // Text only post
+            savePostToFirestore("", caption)
+        }
     }
 
     private fun savePostToFirestore(imageUrl: String, caption: String) {

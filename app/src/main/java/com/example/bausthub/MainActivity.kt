@@ -83,6 +83,7 @@ class MainActivity : AppCompatActivity() {
                     for (doc in snapshot.documents) {
                         val post = doc.toObject(Post::class.java)
                         if (post != null) {
+                            post.postId = doc.id
                             postList.add(post)
                         }
                     }
