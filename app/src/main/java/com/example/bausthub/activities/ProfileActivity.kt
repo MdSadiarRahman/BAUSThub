@@ -41,7 +41,7 @@ class ProfileActivity : AppCompatActivity() {
         postAdapter = PostAdapter(postList)
         rvProfileFeed.adapter = postAdapter
         
-        val btnSignOut = findViewById<TextView>(R.id.btnSignOut)
+        val btnProfileMenu = findViewById<ImageButton>(R.id.btnProfileMenu)
         val btnHome = findViewById<ImageButton>(R.id.btnNavHome)
         val btnSearch = findViewById<ImageButton>(R.id.btnNavSearch)
         val btnNotifications = findViewById<ImageButton>(R.id.btnNavNotifications)
@@ -82,10 +82,25 @@ class ProfileActivity : AppCompatActivity() {
             finish()
         }
 
-        btnSignOut.setOnClickListener {
-            auth.signOut()
-            startActivity(Intent(this, LoginActivity::class.java))
-            finish()
+        btnProfileMenu.setOnClickListener { view ->
+            val popup = PopupMenu(this, view)
+            popup.menuInflater.inflate(R.menu.profile_menu, popup.menu)
+            popup.setOnMenuItemClickListener { item ->
+                when (item.itemId) {
+                    R.id.menu_settings -> {
+                        Toast.makeText(this, "Settings clicked", Toast.LENGTH_SHORT).show()
+                        true
+                    }
+                    R.id.menu_sign_out -> {
+                        auth.signOut()
+                        startActivity(Intent(this, LoginActivity::class.java))
+                        finish()
+                        true
+                    }
+                    else -> false
+                }
+            }
+            popup.show()
         }
 
         loadUserData()

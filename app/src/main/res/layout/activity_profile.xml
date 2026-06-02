@@ -24,16 +24,14 @@
                 android:gravity="end"
                 android:padding="8dp">
 
-                <TextView
-                    android:id="@+id/btnSignOut"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/google_button_bg"
-                    android:paddingHorizontal="12dp"
-                    android:paddingVertical="6dp"
-                    android:text="⟼ Sign Out"
-                    android:textColor="#EF4444"
-                    android:textStyle="bold" />
+                <ImageButton
+                    android:id="@+id/btnProfileMenu"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="Menu"
+                    android:src="@drawable/ic_menu"
+                    app:tint="@color/text_dark" />
             </LinearLayout>
 
             <androidx.constraintlayout.widget.ConstraintLayout
