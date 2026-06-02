@@ -80,8 +80,7 @@
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="12dp"
             android:adjustViewBounds="true"
-            android:minHeight="250dp"
-            android:scaleType="centerCrop"
+            android:scaleType="fitCenter"
             app:shapeAppearanceOverlay="@style/RoundedImage"
             android:contentDescription="Post image" />
 
