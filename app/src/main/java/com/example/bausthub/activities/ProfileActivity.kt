@@ -2,6 +2,8 @@ package com.example.bausthub.activities
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -41,7 +43,7 @@ class ProfileActivity : AppCompatActivity() {
         postAdapter = PostAdapter(postList)
         rvProfileFeed.adapter = postAdapter
         
-        val btnProfileMenu = findViewById<ImageButton>(R.id.btnProfileMenu)
+        val btnProfileMenu = findViewById<LinearLayout>(R.id.btnProfileMenu)
         val btnHome = findViewById<ImageButton>(R.id.btnNavHome)
         val btnSearch = findViewById<ImageButton>(R.id.btnNavSearch)
         val btnNotifications = findViewById<ImageButton>(R.id.btnNavNotifications)
@@ -83,28 +85,45 @@ class ProfileActivity : AppCompatActivity() {
         }
 
         btnProfileMenu.setOnClickListener { view ->
-            val popup = PopupMenu(this, view)
-            popup.menuInflater.inflate(R.menu.profile_menu, popup.menu)
-            popup.setOnMenuItemClickListener { item ->
-                when (item.itemId) {
-                    R.id.menu_settings -> {
-                        Toast.makeText(this, "Settings clicked", Toast.LENGTH_SHORT).show()
-                        true
-                    }
-                    R.id.menu_sign_out -> {
-                        auth.signOut()
-                        startActivity(Intent(this, LoginActivity::class.java))
-                        finish()
-                        true
-                    }
-                    else -> false
-                }
-            }
-            popup.show()
+            showProfileMenu(view)
         }
 
         loadUserData()
         loadUserPosts() // Default view
+    }
+
+    private fun showProfileMenu(anchorView: View) {
+        val inflater = getSystemService(LAYOUT_INFLATER_SERVICE) as LayoutInflater
+        val popupView = inflater.inflate(R.layout.layout_profile_menu, null)
+
+        val popupWindow = PopupWindow(
+            popupView,
+            LinearLayout.LayoutParams.WRAP_CONTENT,
+            LinearLayout.LayoutParams.WRAP_CONTENT,
+            true
+        )
+
+        // Set listeners for menu items
+        popupView.findViewById<LinearLayout>(R.id.menuSettings).setOnClickListener {
+            Toast.makeText(this, "Settings clicked", Toast.LENGTH_SHORT).show()
+            popupWindow.dismiss()
+        }
+
+        popupView.findViewById<LinearLayout>(R.id.menuSignOut).setOnClickListener {
+            auth.signOut()
+            startActivity(Intent(this, LoginActivity::class.java))
+            finish()
+            popupWindow.dismiss()
+        }
+
+        // Show the popup menu
+        popupWindow.elevation = 10f
+        popupWindow.showAsDropDown(anchorView, 0, 10) 
+        
+        // Adjust position to the left so it aligns with the button's right edge
+        popupView.post {
+            popupWindow.update(anchorView, -(popupView.width - anchorView.width), 10, -1, -1)
+        }
     }
 
     private fun loadUserPosts() {
