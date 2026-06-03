@@ -154,14 +154,20 @@ class PostAdapter(private var posts: List<Post>) : RecyclerView.Adapter<PostAdap
             }
 
         holder.btnBookmark.setOnClickListener {
+            if (post.postId.isEmpty()) {
+                Toast.makeText(holder.itemView.context, "Error: Post ID missing", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
             val savedRef = db.collection("students").document(currentUserId).collection("savedPosts").document(post.postId)
             savedRef.get().addOnSuccessListener { doc ->
                 if (doc.exists()) {
-                    savedRef.delete()
-                    Toast.makeText(holder.itemView.context, "Removed from Vault", Toast.LENGTH_SHORT).show()
+                    savedRef.delete().addOnSuccessListener {
+                        Toast.makeText(holder.itemView.context, "Removed from Vault", Toast.LENGTH_SHORT).show()
+                    }
                 } else {
-                    savedRef.set(post)
-                    Toast.makeText(holder.itemView.context, "Saved to Vault", Toast.LENGTH_SHORT).show()
+                    savedRef.set(post).addOnSuccessListener {
+                        Toast.makeText(holder.itemView.context, "Saved to Vault", Toast.LENGTH_SHORT).show()
+                    }
                 }
             }
         }

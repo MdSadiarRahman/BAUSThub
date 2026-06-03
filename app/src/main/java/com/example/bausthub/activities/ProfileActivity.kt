@@ -23,6 +23,7 @@ class ProfileActivity : AppCompatActivity() {
     private lateinit var db: FirebaseFirestore
     private lateinit var postAdapter: PostAdapter
     private var postList = mutableListOf<Post>()
+    private var profileListener: com.google.firebase.firestore.ListenerRegistration? = null
 
     private lateinit var tvName: TextView
     private lateinit var tvEmail: TextView
@@ -69,10 +70,12 @@ class ProfileActivity : AppCompatActivity() {
         }
 
         btnMyPosts.setOnClickListener {
+            updateTabUI(true)
             loadUserPosts()
         }
 
         btnVault.setOnClickListener {
+            updateTabUI(false)
             loadSavedPosts()
         }
 
@@ -106,7 +109,27 @@ class ProfileActivity : AppCompatActivity() {
 
         loadUserData()
         syncCounts() // One-time sync to fix any negative or incorrect counts
+        updateTabUI(true)
         loadUserPosts() // Default view
+    }
+
+    private fun updateTabUI(isMyPosts: Boolean) {
+        val btnMyPosts = findViewById<LinearLayout>(R.id.btnMyPosts)
+        val btnVault = findViewById<LinearLayout>(R.id.btnVault)
+        val tvMyPosts = (btnMyPosts.getChildAt(0) as TextView)
+        val tvVault = (btnVault.getChildAt(0) as TextView)
+
+        if (isMyPosts) {
+            btnMyPosts.setBackgroundResource(R.drawable.button_bg)
+            tvMyPosts.setTextColor(android.graphics.Color.WHITE)
+            btnVault.setBackgroundResource(R.drawable.google_button_bg)
+            tvVault.setTextColor(android.graphics.Color.parseColor("#64748B"))
+        } else {
+            btnMyPosts.setBackgroundResource(R.drawable.google_button_bg)
+            tvMyPosts.setTextColor(android.graphics.Color.parseColor("#64748B"))
+            btnVault.setBackgroundResource(R.drawable.button_bg)
+            tvVault.setTextColor(android.graphics.Color.WHITE)
+        }
     }
 
     private fun syncCounts() {
@@ -170,7 +193,8 @@ class ProfileActivity : AppCompatActivity() {
 
     private fun loadUserPosts() {
         val uid = auth.currentUser?.uid ?: return
-        db.collection("posts")
+        profileListener?.remove()
+        profileListener = db.collection("posts")
             .whereEqualTo("userId", uid)
             .orderBy("timestamp", Query.Direction.DESCENDING)
             .addSnapshotListener { snapshot, _ ->
@@ -190,7 +214,8 @@ class ProfileActivity : AppCompatActivity() {
 
     private fun loadSavedPosts() {
         val uid = auth.currentUser?.uid ?: return
-        db.collection("students").document(uid).collection("savedPosts")
+        profileListener?.remove()
+        profileListener = db.collection("students").document(uid).collection("savedPosts")
             .orderBy("timestamp", Query.Direction.DESCENDING)
             .addSnapshotListener { snapshot, _ ->
                 if (snapshot != null) {
