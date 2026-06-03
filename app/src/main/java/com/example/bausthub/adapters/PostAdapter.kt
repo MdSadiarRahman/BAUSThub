@@ -97,6 +97,17 @@ class PostAdapter(private var posts: List<Post>) : RecyclerView.Adapter<PostAdap
 
         // --- Interaction Logic ---
 
+        // Listen for Real-time Post Data (Likes/Comments Count)
+        db.collection("posts").document(post.postId).addSnapshotListener { snapshot, _ ->
+            if (snapshot != null && snapshot.exists()) {
+                val lCount = snapshot.getLong("likesCount") ?: 0
+                val cCount = snapshot.getLong("commentsCount") ?: 0
+                holder.tvLikeCount.text = "$lCount BAUSTIANS LIKED"
+                holder.tvDiscussionCommentCount.text = "$cCount COMMENTS"
+                holder.tvNoCommentsLabel.visibility = if (cCount == 0L) View.VISIBLE else View.GONE
+            }
+        }
+
         // Like Status Check
         db.collection("posts").document(post.postId).collection("likes").document(currentUserId)
             .addSnapshotListener { snapshot, _ ->
@@ -110,7 +121,6 @@ class PostAdapter(private var posts: List<Post>) : RecyclerView.Adapter<PostAdap
         // Like Click
         holder.btnLike.setOnClickListener {
             if (post.postId.isEmpty()) return@setOnClickListener
-            
             val likeRef = db.collection("posts").document(post.postId).collection("likes").document(currentUserId)
             likeRef.get().addOnSuccessListener { doc ->
                 if (doc.exists()) {
@@ -120,34 +130,41 @@ class PostAdapter(private var posts: List<Post>) : RecyclerView.Adapter<PostAdap
                     likeRef.set(hashMapOf("timestamp" to System.currentTimeMillis()))
                     db.collection("posts").document(post.postId).update("likesCount", com.google.firebase.firestore.FieldValue.increment(1))
                 }
-            }.addOnFailureListener {
-                Toast.makeText(holder.itemView.context, "Error: ${it.message}", Toast.LENGTH_SHORT).show()
             }
         }
 
-        // Bookmark Click
+        // Share Click
+        holder.btnShare.setOnClickListener {
+            val shareText = "${post.authorName}: ${post.caption}\n\nShared from BAUSThub"
+            val intent = Intent(Intent.ACTION_SEND).apply {
+                type = "text/plain"
+                putExtra(Intent.EXTRA_TEXT, shareText)
+            }
+            holder.itemView.context.startActivity(Intent.createChooser(intent, "Share post via"))
+        }
+
+        // Bookmark Click (Vault)
+        db.collection("students").document(currentUserId).collection("savedPosts").document(post.postId)
+            .addSnapshotListener { snapshot, _ ->
+                if (snapshot != null && snapshot.exists()) {
+                    holder.btnBookmark.setColorFilter(android.graphics.Color.parseColor("#FFD700")) // Yellow
+                } else {
+                    holder.btnBookmark.setColorFilter(android.graphics.Color.GRAY)
+                }
+            }
+
         holder.btnBookmark.setOnClickListener {
             val savedRef = db.collection("students").document(currentUserId).collection("savedPosts").document(post.postId)
             savedRef.get().addOnSuccessListener { doc ->
                 if (doc.exists()) {
                     savedRef.delete()
                     Toast.makeText(holder.itemView.context, "Removed from Vault", Toast.LENGTH_SHORT).show()
-                    holder.btnBookmark.setColorFilter(android.graphics.Color.GRAY)
                 } else {
                     savedRef.set(post)
                     Toast.makeText(holder.itemView.context, "Saved to Vault", Toast.LENGTH_SHORT).show()
-                    holder.btnBookmark.setColorFilter(android.graphics.Color.parseColor("#FFD700")) // Yellow
                 }
             }
         }
-
-        // Comment Click
-        holder.btnComment.setOnClickListener {
-            showCommentsDialog(holder.itemView.context, post)
-        }
-
-        // Like Count display
-        holder.tvLikeCount.text = "${post.likesCount} BAUSTIANS LIKED"
 
         // Comment Discussion Logic
         val commentsList = mutableListOf<com.example.bausthub.models.Comment>()
