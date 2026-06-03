@@ -1,9 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/bg_light">
+    android:background="#F4F7F5"
+    android:clipChildren="false"
+    android:clipToPadding="false">
 
     <ScrollView
         android:layout_width="match_parent"
@@ -14,20 +17,49 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center_horizontal"
             android:orientation="vertical"
             android:padding="16dp">
 
-            <LinearLayout
+            <!-- Header Title and Menu -->
+            <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="end"
-                android:padding="8dp">
+                android:layout_marginTop="8dp">
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Hub Profile"
+                        android:textColor="#1B7C43"
+                        android:textSize="32sp"
+                        android:textStyle="bold|italic" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="CONTROL WORKSPACE"
+                        android:textColor="#94A3B8"
+                        android:textSize="14sp"
+                        android:letterSpacing="0.1"
+                        android:textStyle="bold" />
+
+                    <View
+                        android:layout_width="120dp"
+                        android:layout_height="3dp"
+                        android:layout_marginTop="4dp"
+                        android:background="#FFD700" />
+                </LinearLayout>
 
                 <LinearLayout
                     android:id="@+id/btnProfileMenu"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
                     android:background="@drawable/bg_menu_button"
                     android:clickable="true"
                     android:focusable="true"
@@ -38,7 +70,6 @@
                     <ImageView
                         android:layout_width="18dp"
                         android:layout_height="18dp"
-                        android:contentDescription="Menu Icon"
                         android:src="@drawable/ic_menu"
                         app:tint="#64748B" />
 
@@ -51,89 +82,241 @@
                         android:textSize="14sp"
                         android:textStyle="bold" />
                 </LinearLayout>
-            </LinearLayout>
+            </RelativeLayout>
 
+            <!-- Cover and Profile Section -->
             <androidx.constraintlayout.widget.ConstraintLayout
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="20dp">
+                android:layout_marginTop="32dp">
 
                 <View
-                    android:id="@+id/borderView"
-                    android:layout_width="160dp"
-                    android:layout_height="160dp"
-                    android:background="@drawable/circle_border_yellow"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
+                    android:id="@+id/coverPhoto"
+                    android:layout_width="match_parent"
+                    android:layout_height="180dp"
+                    android:background="@drawable/bg_cover_gradient"
                     app:layout_constraintTop_toTopOf="parent" />
 
-                <com.google.android.material.imageview.ShapeableImageView
-                    android:id="@+id/ivProfilePic"
-                    android:layout_width="140dp"
-                    android:layout_height="140dp"
-                    android:padding="4dp"
-                    android:scaleType="centerCrop"
-                    android:src="@mipmap/ic_launcher"
-                    app:layout_constraintBottom_toBottomOf="@id/borderView"
-                    app:layout_constraintEnd_toEndOf="@id/borderView"
-                    app:layout_constraintStart_toStartOf="@id/borderView"
-                    app:layout_constraintTop_toTopOf="@id/borderView"
-                    app:shapeAppearanceOverlay="@style/CircleImage" />
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="100dp"
+                    android:layout_marginTop="140dp"
+                    android:background="@color/white"
+                    app:layout_constraintTop_toTopOf="parent" />
 
-                <ProgressBar
-                    android:id="@+id/pbProfilePic"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
-                    android:visibility="gone"
-                    app:layout_constraintBottom_toBottomOf="@id/ivProfilePic"
-                    app:layout_constraintEnd_toEndOf="@id/ivProfilePic"
-                    app:layout_constraintStart_toStartOf="@id/ivProfilePic"
-                    app:layout_constraintTop_toTopOf="@id/ivProfilePic" />
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/profilePicContainer"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintBottom_toBottomOf="@+id/coverPhoto"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/coverPhoto">
 
-                <ImageButton
-                    android:id="@+id/btnUploadPic"
-                    android:layout_width="44dp"
-                    android:layout_height="44dp"
-                    android:background="@drawable/circle_green"
-                    android:elevation="4dp"
-                    android:padding="10dp"
-                    android:scaleType="centerInside"
-                    android:src="@android:drawable/ic_menu_camera"
-                    app:layout_constraintBottom_toBottomOf="@id/borderView"
-                    app:layout_constraintEnd_toEndOf="@id/borderView"
-                    app:tint="@color/white" />
+                    <View
+                        android:id="@+id/borderView"
+                        android:layout_width="140dp"
+                        android:layout_height="140dp"
+                        android:background="@drawable/circle_border_yellow"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <com.google.android.material.imageview.ShapeableImageView
+                        android:id="@+id/ivProfilePic"
+                        android:layout_width="120dp"
+                        android:layout_height="120dp"
+                        android:padding="2dp"
+                        android:scaleType="centerCrop"
+                        android:src="@mipmap/ic_launcher"
+                        app:layout_constraintBottom_toBottomOf="@id/borderView"
+                        app:layout_constraintEnd_toEndOf="@id/borderView"
+                        app:layout_constraintStart_toStartOf="@id/borderView"
+                        app:layout_constraintTop_toTopOf="@id/borderView"
+                        app:shapeAppearanceOverlay="@style/CircleImage" />
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
-            <TextView
-                android:id="@+id/tvProfileName"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
-                android:gravity="center"
-                android:text="Student Name"
-                android:textColor="@color/text_dark"
-                android:textSize="28sp"
-                android:textStyle="bold" />
-
-            <Button
-                android:id="@+id/btnEditProfile"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:backgroundTint="@color/input_bg"
-                android:minWidth="200dp"
-                android:text="EDIT PROFILE"
-                android:textAllCaps="true"
-                android:textColor="@color/text_dark"
-                android:textStyle="bold" />
-
+            <!-- User Info Section -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="32dp"
-                android:orientation="horizontal">
+                android:background="@color/white"
+                android:gravity="center_horizontal"
+                android:orientation="vertical"
+                android:paddingBottom="24dp">
+
+                <TextView
+                    android:id="@+id/tvProfileName"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="Student Name"
+                    android:textColor="#1E293B"
+                    android:textSize="28sp"
+                    android:textStyle="bold" />
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:background="@drawable/bg_verified_badge"
+                    android:gravity="center_vertical"
+                    android:paddingHorizontal="12dp"
+                    android:paddingVertical="6dp">
+
+                    <ImageView
+                        android:layout_width="16dp"
+                        android:layout_height="16dp"
+                        android:src="@android:drawable/checkbox_on_background"
+                        app:tint="#10B981" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:text="VERIFIED"
+                        android:textColor="#10B981"
+                        android:textSize="12sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:gravity="center"
+                    android:orientation="horizontal">
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/bg_info_badge"
+                        android:gravity="center_vertical"
+                        android:paddingHorizontal="12dp"
+                        android:paddingVertical="8dp">
+
+                        <ImageView
+                            android:layout_width="16dp"
+                            android:layout_height="16dp"
+                            android:src="@android:drawable/ic_dialog_email"
+                            app:tint="#1B7C43" />
+
+                        <TextView
+                            android:id="@+id/tvProfileEmail"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="8dp"
+                            android:text="student@baust.edu.bd"
+                            android:textColor="#334155"
+                            android:textSize="13sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:background="@drawable/bg_info_badge"
+                        android:gravity="center_vertical"
+                        android:paddingHorizontal="12dp"
+                        android:paddingVertical="8dp">
+
+                        <ImageView
+                            android:layout_width="16dp"
+                            android:layout_height="16dp"
+                            android:src="@android:drawable/ic_menu_mylocation"
+                            app:tint="#F59E0B" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="8dp"
+                            android:text="BAUST campus"
+                            android:textColor="#334155"
+                            android:textSize="13sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:background="@drawable/bg_info_badge"
+                    android:gravity="center_vertical"
+                    android:paddingHorizontal="16dp"
+                    android:paddingVertical="8dp">
+
+                    <ImageView
+                        android:layout_width="16dp"
+                        android:layout_height="16dp"
+                        android:src="@android:drawable/btn_star"
+                        app:tint="#F59E0B" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:text="Active Citizen"
+                        android:textColor="#334155"
+                        android:textSize="13sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
+                <!-- Bio Card -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="24dp"
+                    android:layout_marginTop="24dp"
+                    android:background="@drawable/bg_bio_card"
+                    android:padding="20dp">
+
+                    <TextView
+                        android:id="@+id/tvProfileBio"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:text="\&quot;Digital nomad exploring the engineering waves at BAUST.\&quot;"
+                        android:textColor="#64748B"
+                        android:textSize="15sp"
+                        android:textStyle="italic" />
+                </LinearLayout>
+
+                <!-- Edit Profile Button -->
+                <Button
+                    android:id="@+id/btnEditProfile"
+                    android:layout_width="match_parent"
+                    android:layout_height="55dp"
+                    android:layout_marginHorizontal="24dp"
+                    android:layout_marginTop="24dp"
+                    android:backgroundTint="#1B7C43"
+                    android:text="Edit Hub Profile"
+                    android:textAllCaps="false"
+                    android:textColor="@color/white"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    app:cornerRadius="16dp"
+                    app:icon="@android:drawable/ic_menu_edit"
+                    app:iconGravity="textStart"
+                    app:iconPadding="8dp"
+                    app:iconSize="20dp"
+                    app:iconTint="@color/white" />
+            </LinearLayout>
+
+            <!-- Stats Card -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:background="@drawable/bg_stats_card"
+                android:elevation="2dp"
+                android:orientation="horizontal"
+                android:paddingVertical="20dp">
 
                 <LinearLayout
                     android:layout_width="0dp"
@@ -147,18 +330,24 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="0"
-                        android:textColor="@color/text_dark"
-                        android:textSize="22sp"
+                        android:textColor="#1E293B"
+                        android:textSize="24sp"
                         android:textStyle="bold" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="POSTS"
-                        android:textColor="@color/text_grey"
+                        android:textColor="#94A3B8"
                         android:textSize="12sp"
                         android:textStyle="bold" />
                 </LinearLayout>
+
+                <View
+                    android:layout_width="1dp"
+                    android:layout_height="30dp"
+                    android:layout_gravity="center_vertical"
+                    android:background="#E2E8F0" />
 
                 <LinearLayout
                     android:layout_width="0dp"
@@ -172,18 +361,24 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="0"
-                        android:textColor="@color/text_dark"
-                        android:textSize="22sp"
+                        android:textColor="#1E293B"
+                        android:textSize="24sp"
                         android:textStyle="bold" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="FOLLOWERS"
-                        android:textColor="@color/text_grey"
+                        android:textColor="#94A3B8"
                         android:textSize="12sp"
                         android:textStyle="bold" />
                 </LinearLayout>
+
+                <View
+                    android:layout_width="1dp"
+                    android:layout_height="30dp"
+                    android:layout_gravity="center_vertical"
+                    android:background="#E2E8F0" />
 
                 <LinearLayout
                     android:layout_width="0dp"
@@ -197,56 +392,53 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="0"
-                        android:textColor="@color/text_dark"
-                        android:textSize="22sp"
+                        android:textColor="#1E293B"
+                        android:textSize="24sp"
                         android:textStyle="bold" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="FOLLOWING"
-                        android:textColor="@color/text_grey"
+                        android:textColor="#94A3B8"
                         android:textSize="12sp"
                         android:textStyle="bold" />
                 </LinearLayout>
             </LinearLayout>
 
-            <TextView
-                android:id="@+id/tvProfileBio"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
-                android:gravity="center"
-                android:paddingHorizontal="32dp"
-                android:text="\&quot;Digital nomad exploring the engineering waves at BAUST.\&quot;"
-                android:textColor="@color/text_grey"
-                android:textSize="16sp"
-                android:textStyle="italic" />
-
+            <!-- Tab Switcher -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="32dp"
+                android:background="@drawable/bg_stats_card"
                 android:orientation="horizontal"
-                android:paddingHorizontal="16dp">
+                android:padding="6dp">
 
                 <LinearLayout
                     android:id="@+id/btnMyPosts"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginEnd="8dp"
                     android:layout_weight="1"
-                    android:background="@drawable/button_bg"
+                    android:background="@drawable/bg_pill_active"
                     android:clickable="true"
                     android:focusable="true"
                     android:gravity="center"
                     android:paddingVertical="12dp">
 
+                    <ImageView
+                        android:layout_width="16dp"
+                        android:layout_height="16dp"
+                        android:src="@drawable/ic_grid"
+                        app:tint="@color/white" />
+
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="MY HUB"
+                        android:layout_marginStart="8dp"
+                        android:text="HUB POSTS"
                         android:textColor="@color/white"
+                        android:textSize="13sp"
                         android:textStyle="bold" />
                 </LinearLayout>
 
@@ -254,19 +446,25 @@
                     android:id="@+id/btnVault"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
                     android:layout_weight="1"
-                    android:background="@drawable/google_button_bg"
                     android:clickable="true"
                     android:focusable="true"
                     android:gravity="center"
                     android:paddingVertical="12dp">
 
+                    <ImageView
+                        android:layout_width="16dp"
+                        android:layout_height="16dp"
+                        android:src="@drawable/ic_bookmark"
+                        app:tint="#94A3B8" />
+
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
                         android:text="VAULT"
-                        android:textColor="@color/text_grey"
+                        android:textColor="#94A3B8"
+                        android:textSize="13sp"
                         android:textStyle="bold" />
                 </LinearLayout>
             </LinearLayout>
@@ -275,8 +473,12 @@
                 android:id="@+id/rvProfileFeed"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
+                android:layout_marginTop="24dp"
                 android:nestedScrollingEnabled="false" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="100dp"/>
 
         </LinearLayout>
     </ScrollView>
@@ -284,17 +486,19 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/bottomNavContainer"
         android:layout_width="match_parent"
-        android:layout_height="80dp"
+        android:layout_height="90dp"
+        android:clipChildren="false"
+        android:clipToPadding="false"
         app:layout_constraintBottom_toBottomOf="parent">
 
         <LinearLayout
             android:id="@+id/bottomNav"
             android:layout_width="match_parent"
-            android:layout_height="65dp"
+            android:layout_height="70dp"
             android:background="@color/white"
             android:gravity="center_vertical"
             android:orientation="horizontal"
-            android:elevation="8dp"
+            android:paddingHorizontal="16dp"
             app:layout_constraintBottom_toBottomOf="parent">
 
             <ImageButton
@@ -304,8 +508,7 @@
                 android:layout_weight="1"
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:src="@drawable/ic_nav_home"
-                app:tint="@color/text_grey"
-                android:contentDescription="Home" />
+                app:tint="#94A3B8" />
 
             <ImageButton
                 android:id="@+id/btnNavSearch"
@@ -314,8 +517,7 @@
                 android:layout_weight="1"
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:src="@drawable/ic_nav_search"
-                app:tint="@color/text_grey"
-                android:contentDescription="Search" />
+                app:tint="#94A3B8" />
 
             <View
                 android:layout_width="0dp"
@@ -329,38 +531,44 @@
                 android:layout_weight="1"
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:src="@drawable/ic_nav_notifications"
-                app:tint="@color/text_grey"
-                android:contentDescription="Notifications" />
+                app:tint="#94A3B8" />
 
-            <ImageButton
-                android:id="@+id/btnNavProfile"
+            <LinearLayout
+                android:id="@+id/navProfileItem"
                 android:layout_width="0dp"
-                android:layout_height="48dp"
+                android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:layout_margin="8dp"
-                android:background="@drawable/nav_item_bg"
-                android:src="@drawable/ic_nav_profile"
-                app:tint="@color/baust_green"
-                android:contentDescription="Profile" />
+                android:background="@drawable/bg_profile_nav_active"
+                android:paddingVertical="10dp"
+                android:gravity="center"
+                android:clickable="true"
+                android:focusable="true">
+
+                <ImageButton
+                    android:id="@+id/btnNavProfile"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:background="@android:color/transparent"
+                    android:src="@drawable/ic_nav_profile"
+                    app:tint="#1B7C43" />
+            </LinearLayout>
 
         </LinearLayout>
 
         <ImageButton
             android:id="@+id/btnAdd"
-            android:layout_width="60dp"
-            android:layout_height="60dp"
+            android:layout_width="64dp"
+            android:layout_height="64dp"
             android:background="@drawable/circle_solid_yellow"
-            android:elevation="10dp"
-            android:padding="12dp"
-            android:scaleType="centerInside"
+            android:elevation="6dp"
+            android:padding="18dp"
+            android:scaleType="fitCenter"
             android:src="@drawable/ic_nav_add"
-            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintBottom_toTopOf="@+id/bottomNav"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.2"
-            app:tint="@color/white"
-            android:contentDescription="Add" />
+            app:layout_constraintTop_toTopOf="@+id/bottomNav"
+            app:tint="@color/white" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

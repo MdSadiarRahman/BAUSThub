@@ -26,6 +26,7 @@ class ProfileActivity : AppCompatActivity() {
     private var profileListener: com.google.firebase.firestore.ListenerRegistration? = null
 
     private lateinit var tvName: TextView
+    private lateinit var tvBio: TextView
     private lateinit var tvEmail: TextView
     private lateinit var rvProfileFeed: RecyclerView
     private lateinit var ivProfilePic: ImageView
@@ -42,7 +43,8 @@ class ProfileActivity : AppCompatActivity() {
         db = FirebaseFirestore.getInstance()
 
         tvName = findViewById(R.id.tvProfileName)
-        tvEmail = findViewById(R.id.tvProfileBio) 
+        tvBio = findViewById(R.id.tvProfileBio)
+        tvEmail = findViewById(R.id.tvProfileEmail)
         rvProfileFeed = findViewById(R.id.rvProfileFeed)
         ivProfilePic = findViewById(R.id.ivProfilePic)
         
@@ -116,19 +118,29 @@ class ProfileActivity : AppCompatActivity() {
     private fun updateTabUI(isMyPosts: Boolean) {
         val btnMyPosts = findViewById<LinearLayout>(R.id.btnMyPosts)
         val btnVault = findViewById<LinearLayout>(R.id.btnVault)
-        val tvMyPosts = (btnMyPosts.getChildAt(0) as TextView)
-        val tvVault = (btnVault.getChildAt(0) as TextView)
+        
+        val ivMyPosts = btnMyPosts.getChildAt(0) as ImageView
+        val tvMyPosts = btnMyPosts.getChildAt(1) as TextView
+        
+        val ivVault = btnVault.getChildAt(0) as ImageView
+        val tvVault = btnVault.getChildAt(1) as TextView
 
         if (isMyPosts) {
-            btnMyPosts.setBackgroundResource(R.drawable.button_bg)
+            btnMyPosts.setBackgroundResource(R.drawable.bg_pill_active)
             tvMyPosts.setTextColor(android.graphics.Color.WHITE)
-            btnVault.setBackgroundResource(R.drawable.google_button_bg)
-            tvVault.setTextColor(android.graphics.Color.parseColor("#64748B"))
+            ivMyPosts.setColorFilter(android.graphics.Color.WHITE)
+            
+            btnVault.setBackgroundResource(0) // Transparent
+            tvVault.setTextColor(android.graphics.Color.parseColor("#94A3B8"))
+            ivVault.setColorFilter(android.graphics.Color.parseColor("#94A3B8"))
         } else {
-            btnMyPosts.setBackgroundResource(R.drawable.google_button_bg)
-            tvMyPosts.setTextColor(android.graphics.Color.parseColor("#64748B"))
-            btnVault.setBackgroundResource(R.drawable.button_bg)
+            btnMyPosts.setBackgroundResource(0) // Transparent
+            tvMyPosts.setTextColor(android.graphics.Color.parseColor("#94A3B8"))
+            ivMyPosts.setColorFilter(android.graphics.Color.parseColor("#94A3B8"))
+            
+            btnVault.setBackgroundResource(R.drawable.bg_pill_active)
             tvVault.setTextColor(android.graphics.Color.WHITE)
+            ivVault.setColorFilter(android.graphics.Color.WHITE)
         }
     }
 
@@ -238,8 +250,9 @@ class ProfileActivity : AppCompatActivity() {
         db.collection("students").document(uid).addSnapshotListener { document, _ ->
             if (document != null && document.exists()) {
                 tvName.text = document.getString("name")
+                tvEmail.text = document.getString("email") ?: "student@baust.edu.bd"
                 val bio = document.getString("bio") ?: "BAUSTian Hubber"
-                tvEmail.text = bio
+                tvBio.text = bio
 
                 // Dynamic Counts with Negative Protection
                 val postCount = document.getLong("postsCount") ?: 0
