@@ -1,11 +1,16 @@
 package com.example.bausthub.activities
 
+import android.net.Uri
 import android.os.Bundle
 import android.view.View
 import android.widget.*
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import com.bumptech.glide.Glide
+import com.cloudinary.android.MediaManager
+import com.cloudinary.android.callback.ErrorInfo
+import com.cloudinary.android.callback.UploadCallback
 import com.example.bausthub.R
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -20,12 +25,32 @@ class SettingsActivity : AppCompatActivity() {
     private lateinit var btnConfirm: Button
     private lateinit var btnDiscard: Button
     private lateinit var ivProfilePic: ImageView
+    private lateinit var ivCoverPic: ImageView
     private lateinit var tabProfile: TextView
     private lateinit var tabPassword: TextView
     private lateinit var layoutProfileFields: LinearLayout
     private lateinit var layoutPasswordFields: LinearLayout
     private lateinit var etNewPassword: EditText
     private lateinit var etConfirmNewPassword: EditText
+    
+    private var profileUri: Uri? = null
+    private var coverUri: Uri? = null
+    private var profileImageUrl: String? = null
+    private var coverImageUrl: String? = null
+
+    private val pickProfileImage = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
+        uri?.let {
+            profileUri = it
+            ivProfilePic.setImageURI(it)
+        }
+    }
+
+    private val pickCoverImage = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
+        uri?.let {
+            coverUri = it
+            ivCoverPic.setImageURI(it)
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -39,6 +64,7 @@ class SettingsActivity : AppCompatActivity() {
         btnConfirm = findViewById(R.id.btnConfirmChanges)
         btnDiscard = findViewById(R.id.btnDiscard)
         ivProfilePic = findViewById(R.id.ivSettingsProfilePic)
+        ivCoverPic = findViewById(R.id.ivSettingsCover)
         tabProfile = findViewById(R.id.tabProfile)
         tabPassword = findViewById(R.id.tabPassword)
         layoutProfileFields = findViewById(R.id.layoutProfileFields)
@@ -47,6 +73,14 @@ class SettingsActivity : AppCompatActivity() {
         etConfirmNewPassword = findViewById(R.id.etConfirmNewPassword)
 
         loadUserData()
+
+        findViewById<View>(R.id.btnChangeProfile).setOnClickListener {
+            pickProfileImage.launch("image/*")
+        }
+
+        findViewById<View>(R.id.btnChangeCover).setOnClickListener {
+            pickCoverImage.launch("image/*")
+        }
 
         tabProfile.setOnClickListener {
             tabProfile.setBackgroundResource(R.drawable.bg_toggle_active)
@@ -76,11 +110,61 @@ class SettingsActivity : AppCompatActivity() {
 
         btnConfirm.setOnClickListener {
             if (layoutProfileFields.visibility == View.VISIBLE) {
-                saveUserData()
+                startUploadProcess()
             } else {
                 updatePassword()
             }
         }
+    }
+
+    private fun startUploadProcess() {
+        val newName = etName.text.toString().trim()
+        if (newName.isEmpty()) {
+            etName.error = "Name cannot be empty"
+            return
+        }
+
+        btnConfirm.isEnabled = false
+        btnConfirm.text = "Uploading..."
+
+        if (profileUri != null && coverUri != null) {
+            uploadImage(profileUri!!, true) {
+                uploadImage(coverUri!!, false) {
+                    saveUserData()
+                }
+            }
+        } else if (profileUri != null) {
+            uploadImage(profileUri!!, true) {
+                saveUserData()
+            }
+        } else if (coverUri != null) {
+            uploadImage(coverUri!!, false) {
+                saveUserData()
+            }
+        } else {
+            saveUserData()
+        }
+    }
+
+    private fun uploadImage(uri: Uri, isProfile: Boolean, onComplete: () -> Unit) {
+        MediaManager.get().upload(uri)
+            .option("unsigned", true)
+            .option("upload_preset", "bausthub_preset")
+            .callback(object : UploadCallback {
+                override fun onStart(requestId: String?) {}
+                override fun onProgress(requestId: String?, bytes: Long, totalBytes: Long) {}
+                override fun onSuccess(requestId: String?, resultData: Map<*, *>?) {
+                    val url = resultData?.get("secure_url") as? String
+                    if (isProfile) profileImageUrl = url else coverImageUrl = url
+                    onComplete()
+                }
+                override fun onError(requestId: String?, error: ErrorInfo?) {
+                    btnConfirm.isEnabled = true
+                    btnConfirm.text = "CONFIRM CHANGES"
+                    Toast.makeText(this@SettingsActivity, "Upload failed: ${error?.description}", Toast.LENGTH_SHORT).show()
+                }
+                override fun onReschedule(requestId: String?, error: ErrorInfo?) {}
+            }).dispatch()
     }
 
     private fun updatePassword() {
@@ -115,9 +199,14 @@ class SettingsActivity : AppCompatActivity() {
                 if (document != null && document.exists()) {
                     etName.setText(document.getString("name"))
                     etBio.setText(document.getString("bio"))
-                    val imageUrl = document.getString("profileImage")
-                    if (!imageUrl.isNullOrEmpty()) {
-                        Glide.with(this).load(imageUrl).into(ivProfilePic)
+                    profileImageUrl = document.getString("profileImage")
+                    coverImageUrl = document.getString("coverImage")
+                    
+                    if (!profileImageUrl.isNullOrEmpty()) {
+                        Glide.with(this).load(profileImageUrl).into(ivProfilePic)
+                    }
+                    if (!coverImageUrl.isNullOrEmpty()) {
+                        Glide.with(this).load(coverImageUrl).into(ivCoverPic)
                     }
                 }
             }
@@ -128,15 +217,13 @@ class SettingsActivity : AppCompatActivity() {
         val newName = etName.text.toString().trim()
         val newBio = etBio.text.toString().trim()
 
-        if (newName.isEmpty()) {
-            etName.error = "Name cannot be empty"
-            return
-        }
-
         val updates = hashMapOf<String, Any>(
             "name" to newName,
             "bio" to newBio
         )
+        
+        profileImageUrl?.let { updates["profileImage"] = it }
+        coverImageUrl?.let { updates["coverImage"] = it }
 
         db.collection("students").document(uid).update(updates)
             .addOnSuccessListener {
@@ -144,6 +231,8 @@ class SettingsActivity : AppCompatActivity() {
                 finish()
             }
             .addOnFailureListener {
+                btnConfirm.isEnabled = true
+                btnConfirm.text = "CONFIRM CHANGES"
                 Toast.makeText(this, "Failed to update profile", Toast.LENGTH_SHORT).show()
             }
     }
