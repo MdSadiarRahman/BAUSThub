@@ -33,6 +33,7 @@ class PostAdapter(private var posts: List<Post>) : RecyclerView.Adapter<PostAdap
         val btnShare: ImageButton = itemView.findViewById(R.id.btnShare)
         val btnBookmark: ImageButton = itemView.findViewById(R.id.btnBookmark)
         val tvLikeCount: TextView = itemView.findViewById(R.id.tvLikeCount)
+        val btnFollow: TextView = itemView.findViewById(R.id.btnFollow)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PostViewHolder {
@@ -136,6 +137,42 @@ class PostAdapter(private var posts: List<Post>) : RecyclerView.Adapter<PostAdap
 
         // Like Count display
         holder.tvLikeCount.text = "${post.likesCount} BAUSTIANS LIKED"
+
+        // Follow Logic
+        if (post.userId == currentUserId) {
+            holder.btnFollow.visibility = View.GONE
+        } else {
+            holder.btnFollow.visibility = View.VISIBLE
+            db.collection("students").document(currentUserId).collection("following").document(post.userId)
+                .addSnapshotListener { snapshot, _ ->
+                    if (snapshot != null && snapshot.exists()) {
+                        holder.btnFollow.text = " • Following"
+                        holder.btnFollow.setTextColor(android.graphics.Color.GRAY)
+                    } else {
+                        holder.btnFollow.text = " • Follow"
+                        holder.btnFollow.setTextColor(android.graphics.Color.parseColor("#10B981"))
+                    }
+                }
+
+            holder.btnFollow.setOnClickListener {
+                val followingRef = db.collection("students").document(currentUserId).collection("following").document(post.userId)
+                val followersRef = db.collection("students").document(post.userId).collection("followers").document(currentUserId)
+
+                followingRef.get().addOnSuccessListener { doc ->
+                    if (doc.exists()) {
+                        followingRef.delete()
+                        followersRef.delete()
+                        db.collection("students").document(currentUserId).update("followingCount", com.google.firebase.firestore.FieldValue.increment(-1))
+                        db.collection("students").document(post.userId).update("followersCount", com.google.firebase.firestore.FieldValue.increment(-1))
+                    } else {
+                        followingRef.set(hashMapOf("timestamp" to System.currentTimeMillis()))
+                        followersRef.set(hashMapOf("timestamp" to System.currentTimeMillis()))
+                        db.collection("students").document(currentUserId).update("followingCount", com.google.firebase.firestore.FieldValue.increment(1))
+                        db.collection("students").document(post.userId).update("followersCount", com.google.firebase.firestore.FieldValue.increment(1))
+                    }
+                }
+            }
+        }
 
         // More Menu
         holder.btnMore.setOnClickListener {

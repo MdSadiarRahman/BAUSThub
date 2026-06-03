@@ -105,7 +105,33 @@ class ProfileActivity : AppCompatActivity() {
         }
 
         loadUserData()
+        syncCounts() // One-time sync to fix any negative or incorrect counts
         loadUserPosts() // Default view
+    }
+
+    private fun syncCounts() {
+        val uid = auth.currentUser?.uid ?: return
+        
+        // Sync Posts Count
+        db.collection("posts").whereEqualTo("userId", uid).count()
+            .get(com.google.firebase.firestore.AggregateSource.SERVER)
+            .addOnSuccessListener { snapshot ->
+                db.collection("students").document(uid).update("postsCount", snapshot.count)
+            }
+            
+        // Sync Followers Count
+        db.collection("students").document(uid).collection("followers").count()
+            .get(com.google.firebase.firestore.AggregateSource.SERVER)
+            .addOnSuccessListener { snapshot ->
+                db.collection("students").document(uid).update("followersCount", snapshot.count)
+            }
+            
+        // Sync Following Count
+        db.collection("students").document(uid).collection("following").count()
+            .get(com.google.firebase.firestore.AggregateSource.SERVER)
+            .addOnSuccessListener { snapshot ->
+                db.collection("students").document(uid).update("followingCount", snapshot.count)
+            }
     }
 
     private fun showProfileMenu(anchorView: View) {
@@ -190,14 +216,14 @@ class ProfileActivity : AppCompatActivity() {
                 val bio = document.getString("bio") ?: "BAUSTian Hubber"
                 tvEmail.text = bio
 
-                // Dynamic Counts
+                // Dynamic Counts with Negative Protection
                 val postCount = document.getLong("postsCount") ?: 0
                 val followersCount = document.getLong("followersCount") ?: 0
                 val followingCount = document.getLong("followingCount") ?: 0
 
-                tvPostCount.text = postCount.toString()
-                tvFollowersCount.text = followersCount.toString()
-                tvFollowingCount.text = followingCount.toString()
+                tvPostCount.text = Math.max(0, postCount).toString()
+                tvFollowersCount.text = Math.max(0, followersCount).toString()
+                tvFollowingCount.text = Math.max(0, followingCount).toString()
 
                 val profilePicUrl = document.getString("profileImage")
                 if (!profilePicUrl.isNullOrEmpty()) {
