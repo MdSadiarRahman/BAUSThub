@@ -1,6 +1,7 @@
 package com.example.bausthub.activities
 
 import android.os.Bundle
+import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
@@ -21,6 +22,10 @@ class SettingsActivity : AppCompatActivity() {
     private lateinit var ivProfilePic: ImageView
     private lateinit var tabProfile: TextView
     private lateinit var tabPassword: TextView
+    private lateinit var layoutProfileFields: LinearLayout
+    private lateinit var layoutPasswordFields: LinearLayout
+    private lateinit var etNewPassword: EditText
+    private lateinit var etConfirmNewPassword: EditText
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -36,6 +41,10 @@ class SettingsActivity : AppCompatActivity() {
         ivProfilePic = findViewById(R.id.ivSettingsProfilePic)
         tabProfile = findViewById(R.id.tabProfile)
         tabPassword = findViewById(R.id.tabPassword)
+        layoutProfileFields = findViewById(R.id.layoutProfileFields)
+        layoutPasswordFields = findViewById(R.id.layoutPasswordFields)
+        etNewPassword = findViewById(R.id.etNewPassword)
+        etConfirmNewPassword = findViewById(R.id.etConfirmNewPassword)
 
         loadUserData()
 
@@ -44,6 +53,10 @@ class SettingsActivity : AppCompatActivity() {
             tabProfile.setTextColor(ContextCompat.getColor(this, R.color.baust_green))
             tabPassword.setBackground(null)
             tabPassword.setTextColor(ContextCompat.getColor(this, R.color.text_grey))
+            
+            layoutProfileFields.visibility = View.VISIBLE
+            layoutPasswordFields.visibility = View.GONE
+            btnConfirm.text = "CONFIRM CHANGES"
         }
 
         tabPassword.setOnClickListener {
@@ -51,7 +64,10 @@ class SettingsActivity : AppCompatActivity() {
             tabPassword.setTextColor(ContextCompat.getColor(this, R.color.baust_green))
             tabProfile.setBackground(null)
             tabProfile.setTextColor(ContextCompat.getColor(this, R.color.text_grey))
-            Toast.makeText(this, "Change Password clicked", Toast.LENGTH_SHORT).show()
+            
+            layoutProfileFields.visibility = View.GONE
+            layoutPasswordFields.visibility = View.VISIBLE
+            btnConfirm.text = "UPDATE PASSWORD"
         }
 
         btnDiscard.setOnClickListener {
@@ -59,8 +75,37 @@ class SettingsActivity : AppCompatActivity() {
         }
 
         btnConfirm.setOnClickListener {
-            saveUserData()
+            if (layoutProfileFields.visibility == View.VISIBLE) {
+                saveUserData()
+            } else {
+                updatePassword()
+            }
         }
+    }
+
+    private fun updatePassword() {
+        val newPassword = etNewPassword.text.toString()
+        val confirmPassword = etConfirmNewPassword.text.toString()
+
+        if (newPassword.length < 6) {
+            etNewPassword.error = "Password must be at least 6 characters"
+            return
+        }
+
+        if (newPassword != confirmPassword) {
+            etConfirmNewPassword.error = "Passwords do not match"
+            return
+        }
+
+        val user = auth.currentUser
+        user?.updatePassword(newPassword)
+            ?.addOnSuccessListener {
+                Toast.makeText(this, "Password updated successfully", Toast.LENGTH_SHORT).show()
+                finish()
+            }
+            ?.addOnFailureListener {
+                Toast.makeText(this, "Failed to update password. Please re-login and try again.", Toast.LENGTH_LONG).show()
+            }
     }
 
     private fun loadUserData() {

@@ -61,7 +61,10 @@ class ProfileSetupActivity : AppCompatActivity() {
                 "email" to email,
                 "studentId" to studentId,
                 "department" to department,
-                "batch" to batch
+                "batch" to batch,
+                "postsCount" to 0,
+                "followersCount" to 0,
+                "followingCount" to 0
             )
 
             // "students" নামক কালেকশনে ডাটা সেভ করা

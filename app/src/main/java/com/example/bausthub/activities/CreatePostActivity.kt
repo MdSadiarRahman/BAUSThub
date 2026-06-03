@@ -161,6 +161,10 @@ class CreatePostActivity : AppCompatActivity() {
             db.collection("posts")
                 .add(post)
                 .addOnSuccessListener {
+                    // Update Post Count
+                    db.collection("students").document(uid)
+                        .update("postsCount", com.google.firebase.firestore.FieldValue.increment(1))
+
                     setLoading(false)
                     Toast.makeText(this, "Post shared successfully!", Toast.LENGTH_SHORT).show()
                     finish()

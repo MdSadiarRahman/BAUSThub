@@ -232,9 +232,14 @@ class PostAdapter(private var posts: List<Post>) : RecyclerView.Adapter<PostAdap
             .setTitle("Delete Post")
             .setMessage("Are you sure you want to delete this post?")
             .setPositiveButton("Delete") { _, _ ->
+                val uid = post.userId
                 FirebaseFirestore.getInstance().collection("posts").document(post.postId)
                     .delete()
                     .addOnSuccessListener {
+                        // Update Post Count
+                        FirebaseFirestore.getInstance().collection("students").document(uid)
+                            .update("postsCount", com.google.firebase.firestore.FieldValue.increment(-1))
+
                         Toast.makeText(context, "Post deleted", Toast.LENGTH_SHORT).show()
                     }
                     .addOnFailureListener {

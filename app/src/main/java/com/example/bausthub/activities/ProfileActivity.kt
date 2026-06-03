@@ -28,6 +28,10 @@ class ProfileActivity : AppCompatActivity() {
     private lateinit var tvEmail: TextView
     private lateinit var rvProfileFeed: RecyclerView
     private lateinit var ivProfilePic: ImageView
+    
+    private lateinit var tvPostCount: TextView
+    private lateinit var tvFollowersCount: TextView
+    private lateinit var tvFollowingCount: TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,6 +44,10 @@ class ProfileActivity : AppCompatActivity() {
         tvEmail = findViewById(R.id.tvProfileBio) 
         rvProfileFeed = findViewById(R.id.rvProfileFeed)
         ivProfilePic = findViewById(R.id.ivProfilePic)
+        
+        tvPostCount = findViewById(R.id.tvPostCount)
+        tvFollowersCount = findViewById(R.id.tvFollowersCount)
+        tvFollowingCount = findViewById(R.id.tvFollowingCount)
 
         // Setup RecyclerView
         rvProfileFeed.layoutManager = LinearLayoutManager(this)
@@ -176,22 +184,26 @@ class ProfileActivity : AppCompatActivity() {
     private fun loadUserData() {
         val uid = auth.currentUser?.uid ?: return
 
-        db.collection("students").document(uid).get()
-            .addOnSuccessListener { document ->
-                if (document != null && document.exists()) {
-                    tvName.text = document.getString("name")
-                    val studentId = document.getString("studentId")
-                    val dept = document.getString("department")
-                    val batch = document.getString("batch")
-                    val bio = document.getString("bio") ?: "BAUSTian Hubber"
-                    
-                    tvEmail.text = bio
+        db.collection("students").document(uid).addSnapshotListener { document, _ ->
+            if (document != null && document.exists()) {
+                tvName.text = document.getString("name")
+                val bio = document.getString("bio") ?: "BAUSTian Hubber"
+                tvEmail.text = bio
 
-                    val profilePicUrl = document.getString("profileImage")
-                    if (!profilePicUrl.isNullOrEmpty()) {
-                        Glide.with(this).load(profilePicUrl).into(ivProfilePic)
-                    }
+                // Dynamic Counts
+                val postCount = document.getLong("postsCount") ?: 0
+                val followersCount = document.getLong("followersCount") ?: 0
+                val followingCount = document.getLong("followingCount") ?: 0
+
+                tvPostCount.text = postCount.toString()
+                tvFollowersCount.text = followersCount.toString()
+                tvFollowingCount.text = followingCount.toString()
+
+                val profilePicUrl = document.getString("profileImage")
+                if (!profilePicUrl.isNullOrEmpty()) {
+                    Glide.with(this).load(profilePicUrl).into(ivProfilePic)
                 }
             }
+        }
     }
 }
