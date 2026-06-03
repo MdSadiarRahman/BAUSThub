@@ -52,7 +52,6 @@ class ProfileActivity : AppCompatActivity() {
         tvFollowersCount = findViewById(R.id.tvFollowersCount)
         tvFollowingCount = findViewById(R.id.tvFollowingCount)
 
-        // Setup RecyclerView
         rvProfileFeed.layoutManager = LinearLayoutManager(this)
         postAdapter = PostAdapter(postList)
         rvProfileFeed.adapter = postAdapter
@@ -110,9 +109,9 @@ class ProfileActivity : AppCompatActivity() {
         }
 
         loadUserData()
-        syncCounts() // One-time sync to fix any negative or incorrect counts
+        syncCounts()
         updateTabUI(true)
-        loadUserPosts() // Default view
+        loadUserPosts()
     }
 
     private fun updateTabUI(isMyPosts: Boolean) {
@@ -130,11 +129,11 @@ class ProfileActivity : AppCompatActivity() {
             tvMyPosts.setTextColor(android.graphics.Color.WHITE)
             ivMyPosts.setColorFilter(android.graphics.Color.WHITE)
             
-            btnVault.setBackgroundResource(0) // Transparent
+            btnVault.setBackgroundResource(0)
             tvVault.setTextColor(android.graphics.Color.parseColor("#94A3B8"))
             ivVault.setColorFilter(android.graphics.Color.parseColor("#94A3B8"))
         } else {
-            btnMyPosts.setBackgroundResource(0) // Transparent
+            btnMyPosts.setBackgroundResource(0)
             tvMyPosts.setTextColor(android.graphics.Color.parseColor("#94A3B8"))
             ivMyPosts.setColorFilter(android.graphics.Color.parseColor("#94A3B8"))
             
@@ -147,21 +146,18 @@ class ProfileActivity : AppCompatActivity() {
     private fun syncCounts() {
         val uid = auth.currentUser?.uid ?: return
         
-        // Sync Posts Count
         db.collection("posts").whereEqualTo("userId", uid).count()
             .get(com.google.firebase.firestore.AggregateSource.SERVER)
             .addOnSuccessListener { snapshot ->
                 db.collection("students").document(uid).update("postsCount", snapshot.count)
             }
             
-        // Sync Followers Count
         db.collection("students").document(uid).collection("followers").count()
             .get(com.google.firebase.firestore.AggregateSource.SERVER)
             .addOnSuccessListener { snapshot ->
                 db.collection("students").document(uid).update("followersCount", snapshot.count)
             }
             
-        // Sync Following Count
         db.collection("students").document(uid).collection("following").count()
             .get(com.google.firebase.firestore.AggregateSource.SERVER)
             .addOnSuccessListener { snapshot ->
@@ -180,7 +176,6 @@ class ProfileActivity : AppCompatActivity() {
             true
         )
 
-        // Set listeners for menu items
         popupView.findViewById<LinearLayout>(R.id.menuSettings).setOnClickListener {
             startActivity(Intent(this, SettingsActivity::class.java))
             popupWindow.dismiss()
@@ -193,11 +188,9 @@ class ProfileActivity : AppCompatActivity() {
             popupWindow.dismiss()
         }
 
-        // Show the popup menu
         popupWindow.elevation = 10f
         popupWindow.showAsDropDown(anchorView, 0, 10) 
         
-        // Adjust position to the left so it aligns with the button's right edge
         popupView.post {
             popupWindow.update(anchorView, -(popupView.width - anchorView.width), 10, -1, -1)
         }
@@ -254,7 +247,6 @@ class ProfileActivity : AppCompatActivity() {
                 val bio = document.getString("bio") ?: "BAUSTian Hubber"
                 tvBio.text = bio
 
-                // Dynamic Counts with Negative Protection
                 val postCount = document.getLong("postsCount") ?: 0
                 val followersCount = document.getLong("followersCount") ?: 0
                 val followingCount = document.getLong("followingCount") ?: 0

@@ -57,7 +57,6 @@ class PostAdapter(private var posts: List<Post>) : RecyclerView.Adapter<PostAdap
 
         holder.tvAuthorName.text = post.authorName
         
-        // Format Caption with Bold Author Name
         val fullCaption = "${post.authorName}  ${post.caption}"
         val spannable = SpannableString(fullCaption)
         spannable.setSpan(
@@ -68,14 +67,12 @@ class PostAdapter(private var posts: List<Post>) : RecyclerView.Adapter<PostAdap
         )
         holder.tvPostCaption.text = spannable
         
-        // Load Image
         if (post.imageUrl.isNotEmpty()) {
             holder.ivPostImage.visibility = View.VISIBLE
             Glide.with(holder.itemView.context)
                 .load(post.imageUrl)
                 .into(holder.ivPostImage)
 
-            // Image Click to View Full Screen
             holder.ivPostImage.setOnClickListener {
                 val intent = Intent(holder.itemView.context, ImageViewerActivity::class.java)
                 intent.putExtra("imageUrl", post.imageUrl)
@@ -87,7 +84,6 @@ class PostAdapter(private var posts: List<Post>) : RecyclerView.Adapter<PostAdap
             holder.ivPostImage.visibility = View.GONE
         }
 
-        // Time
         val relativeTime = DateUtils.getRelativeTimeSpanString(
             post.timestamp,
             System.currentTimeMillis(),
@@ -95,9 +91,6 @@ class PostAdapter(private var posts: List<Post>) : RecyclerView.Adapter<PostAdap
         ).toString().uppercase()
         holder.tvPostTime.text = relativeTime
 
-        // --- Interaction Logic ---
-
-        // Listen for Real-time Post Data (Likes/Comments Count)
         db.collection("posts").document(post.postId).addSnapshotListener { snapshot, _ ->
             if (snapshot != null && snapshot.exists()) {
                 val lCount = snapshot.getLong("likesCount") ?: 0
@@ -108,7 +101,6 @@ class PostAdapter(private var posts: List<Post>) : RecyclerView.Adapter<PostAdap
             }
         }
 
-        // Like Status Check
         db.collection("posts").document(post.postId).collection("likes").document(currentUserId)
             .addSnapshotListener { snapshot, _ ->
                 if (snapshot != null && snapshot.exists()) {
@@ -118,7 +110,6 @@ class PostAdapter(private var posts: List<Post>) : RecyclerView.Adapter<PostAdap
                 }
             }
 
-        // Like Click
         holder.btnLike.setOnClickListener {
             if (post.postId.isEmpty()) return@setOnClickListener
             val likeRef = db.collection("posts").document(post.postId).collection("likes").document(currentUserId)
@@ -133,7 +124,6 @@ class PostAdapter(private var posts: List<Post>) : RecyclerView.Adapter<PostAdap
             }
         }
 
-        // Share Click
         holder.btnShare.setOnClickListener {
             val shareText = "${post.authorName}: ${post.caption}\n\nShared from BAUSThub"
             val intent = Intent(Intent.ACTION_SEND).apply {
@@ -143,11 +133,10 @@ class PostAdapter(private var posts: List<Post>) : RecyclerView.Adapter<PostAdap
             holder.itemView.context.startActivity(Intent.createChooser(intent, "Share post via"))
         }
 
-        // Bookmark Click (Vault)
         db.collection("students").document(currentUserId).collection("savedPosts").document(post.postId)
             .addSnapshotListener { snapshot, _ ->
                 if (snapshot != null && snapshot.exists()) {
-                    holder.btnBookmark.setColorFilter(android.graphics.Color.parseColor("#FFD700")) // Yellow
+                    holder.btnBookmark.setColorFilter(android.graphics.Color.parseColor("#FFD700"))
                 } else {
                     holder.btnBookmark.setColorFilter(android.graphics.Color.GRAY)
                 }
@@ -172,7 +161,6 @@ class PostAdapter(private var posts: List<Post>) : RecyclerView.Adapter<PostAdap
             }
         }
 
-        // Comment Discussion Logic
         val commentsList = mutableListOf<com.example.bausthub.models.Comment>()
         val commentAdapter = CommentAdapter(commentsList)
         holder.rvDiscussionComments.layoutManager = androidx.recyclerview.widget.LinearLayoutManager(holder.itemView.context)
@@ -182,7 +170,6 @@ class PostAdapter(private var posts: List<Post>) : RecyclerView.Adapter<PostAdap
             if (show) {
                 holder.layoutDiscussionSpace.visibility = View.VISIBLE
                 holder.btnOpenComment.visibility = View.GONE
-                // Load Comments
                 db.collection("posts").document(post.postId).collection("comments")
                     .orderBy("timestamp", com.google.firebase.firestore.Query.Direction.ASCENDING)
                     .addSnapshotListener { snapshot, _ ->
@@ -226,7 +213,6 @@ class PostAdapter(private var posts: List<Post>) : RecyclerView.Adapter<PostAdap
             }
         }
 
-        // Follow Logic
         if (post.userId == currentUserId) {
             holder.btnFollow.visibility = View.GONE
         } else {
@@ -262,7 +248,6 @@ class PostAdapter(private var posts: List<Post>) : RecyclerView.Adapter<PostAdap
             }
         }
 
-        // More Menu
         holder.btnMore.setOnClickListener {
             val dialog = BottomSheetDialog(holder.itemView.context)
             val view = LayoutInflater.from(holder.itemView.context).inflate(R.layout.dialog_post_options, null, false)
@@ -270,7 +255,6 @@ class PostAdapter(private var posts: List<Post>) : RecyclerView.Adapter<PostAdap
             val layoutEdit = view.findViewById<LinearLayout>(R.id.layoutEdit)
             val layoutDelete = view.findViewById<LinearLayout>(R.id.layoutDelete)
 
-            // Only show Edit/Delete if it's the user's own post
             if (post.userId != currentUserId) {
                 layoutEdit.visibility = View.GONE
                 layoutDelete.visibility = View.GONE
@@ -307,7 +291,6 @@ class PostAdapter(private var posts: List<Post>) : RecyclerView.Adapter<PostAdap
         rvComments.layoutManager = androidx.recyclerview.widget.LinearLayoutManager(context)
         rvComments.adapter = adapter
 
-        // Fetch Comments
         db.collection("posts").document(post.postId).collection("comments")
             .orderBy("timestamp", com.google.firebase.firestore.Query.Direction.ASCENDING)
             .addSnapshotListener { snapshot, _ ->
@@ -324,7 +307,7 @@ class PostAdapter(private var posts: List<Post>) : RecyclerView.Adapter<PostAdap
         btnSend.setOnClickListener {
             val text = etComment.text.toString().trim()
             if (text.isNotEmpty()) {
-                btnSend.isEnabled = false // Prevent multiple clicks
+                btnSend.isEnabled = false
                 
                 val user = FirebaseAuth.getInstance().currentUser
                 val userName = user?.displayName ?: "BAUSTian"
@@ -394,7 +377,6 @@ class PostAdapter(private var posts: List<Post>) : RecyclerView.Adapter<PostAdap
                 FirebaseFirestore.getInstance().collection("posts").document(post.postId)
                     .delete()
                     .addOnSuccessListener {
-                        // Update Post Count
                         FirebaseFirestore.getInstance().collection("students").document(uid)
                             .update("postsCount", com.google.firebase.firestore.FieldValue.increment(-1))
 

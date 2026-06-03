@@ -30,7 +30,6 @@ class LoginActivity : AppCompatActivity() {
 
         auth = FirebaseAuth.getInstance()
 
-        // আপনার নতুন Web Client ID দিয়ে কনফিগার করা হয়েছে
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
             .requestIdToken("11672635130-gt7ptqob34f0vcickqn6se9pt7nt90u4.apps.googleusercontent.com")
             .requestEmail()

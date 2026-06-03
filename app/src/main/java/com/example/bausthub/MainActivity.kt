@@ -41,7 +41,6 @@ class MainActivity : AppCompatActivity() {
 
         db = FirebaseFirestore.getInstance()
 
-        // Views
         rvFeed = findViewById(R.id.rvFeed)
         swipeRefresh = findViewById(R.id.swipeRefresh)
         emptyState = findViewById(R.id.emptyState)
@@ -51,12 +50,10 @@ class MainActivity : AppCompatActivity() {
         val navNotifications = findViewById<ImageButton>(R.id.btnNavNotifications)
         val btnAdd = findViewById<ImageButton>(R.id.btnAdd)
 
-        // Setup RecyclerView
         rvFeed.layoutManager = LinearLayoutManager(this)
         postAdapter = PostAdapter(postList)
         rvFeed.adapter = postAdapter
 
-        // Scroll Listener for Pagination (Intersection Observer like behavior)
         rvFeed.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                 super.onScrolled(recyclerView, dx, dy)
@@ -80,14 +77,12 @@ class MainActivity : AppCompatActivity() {
             }
         })
 
-        // Swipe to Refresh
         swipeRefresh.setOnRefreshListener {
             isLastItemReached = false
             lastVisible = null
             loadFeed()
         }
 
-        // Navigation
         navProfile.setOnClickListener {
             startActivity(Intent(this, ProfileActivity::class.java))
             overridePendingTransition(0, 0)
@@ -113,7 +108,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun updateActiveUsers() {
-        // Simple mock for real-time active users (can be linked to a real presence system)
         db.collection("students").addSnapshotListener { snapshot, _ ->
             val count = snapshot?.size() ?: 0
             tvActiveUsers.text = "● ${count}+ Active"

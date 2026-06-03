@@ -41,11 +41,9 @@ class CreatePostActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_create_post)
 
-        // Initializing Firebase
         auth = FirebaseAuth.getInstance()
         db = FirebaseFirestore.getInstance()
 
-        // Initializing Cloudinary with your credentials
         try {
             val config = hashMapOf(
                 "cloud_name" to "dvjgbhfog",
@@ -54,7 +52,6 @@ class CreatePostActivity : AppCompatActivity() {
             )
             MediaManager.init(this, config)
         } catch (e: Exception) {
-            // Already initialized
         }
 
         val btnClose = findViewById<ImageButton>(R.id.btnClose)
@@ -77,12 +74,10 @@ class CreatePostActivity : AppCompatActivity() {
             uploadPost()
         }
 
-        // Setup Image Picker with High-Speed Workflow (Resize/Compress can be added here)
         btnUploadImage.setOnClickListener {
             pickImage.launch("image/*")
         }
 
-        // Navigation
         btnHome.setOnClickListener {
             startActivity(Intent(this, MainActivity::class.java))
             overridePendingTransition(0, 0)
@@ -116,7 +111,6 @@ class CreatePostActivity : AppCompatActivity() {
         setLoading(true)
 
         if (imageUri != null) {
-            // Uploading to Cloudinary if image exists
             MediaManager.get().upload(imageUri)
                 .option("unsigned", true)
                 .option("upload_preset", "bausthub_preset")
@@ -139,7 +133,6 @@ class CreatePostActivity : AppCompatActivity() {
                     override fun onReschedule(requestId: String?, error: ErrorInfo?) {}
                 }).dispatch()
         } else {
-            // Text only post
             savePostToFirestore("", caption)
         }
     }
@@ -161,7 +154,6 @@ class CreatePostActivity : AppCompatActivity() {
             db.collection("posts")
                 .add(post)
                 .addOnSuccessListener {
-                    // Update Post Count
                     db.collection("students").document(uid)
                         .update("postsCount", com.google.firebase.firestore.FieldValue.increment(1))
 

@@ -20,7 +20,6 @@
             android:orientation="vertical"
             android:padding="16dp">
 
-            <!-- Header Title and Menu -->
             <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -84,7 +83,6 @@
                 </LinearLayout>
             </RelativeLayout>
 
-            <!-- Cover and Profile Section -->
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -140,7 +138,6 @@
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
-            <!-- User Info Section -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -267,7 +264,6 @@
                         android:textStyle="bold" />
                 </LinearLayout>
 
-                <!-- Bio Card -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -287,7 +283,6 @@
                         android:textStyle="italic" />
                 </LinearLayout>
 
-                <!-- Edit Profile Button -->
                 <Button
                     android:id="@+id/btnEditProfile"
                     android:layout_width="match_parent"
@@ -308,7 +303,6 @@
                     app:iconTint="@color/white" />
             </LinearLayout>
 
-            <!-- Stats Card -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -406,7 +400,6 @@
                 </LinearLayout>
             </LinearLayout>
 
-            <!-- Tab Switcher -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
