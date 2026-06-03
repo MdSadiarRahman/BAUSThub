@@ -181,13 +181,28 @@ class SettingsActivity : AppCompatActivity() {
             return
         }
 
+        btnConfirm.isEnabled = false
+        btnConfirm.text = "Updating..."
+
         val user = auth.currentUser
-        user?.updatePassword(newPassword)
-            ?.addOnSuccessListener {
-                Toast.makeText(this, "Password updated successfully", Toast.LENGTH_SHORT).show()
-                finish()
+        val uid = user?.uid ?: return
+
+        user.updatePassword(newPassword)
+            .addOnSuccessListener {
+                db.collection("students").document(uid).update("password", newPassword)
+                    .addOnSuccessListener {
+                        Toast.makeText(this, "Password updated successfully in Auth and DB", Toast.LENGTH_SHORT).show()
+                        finish()
+                    }
+                    .addOnFailureListener {
+                        Toast.makeText(this, "Auth updated, but failed to update DB", Toast.LENGTH_LONG).show()
+                        btnConfirm.isEnabled = true
+                        btnConfirm.text = "UPDATE PASSWORD"
+                    }
             }
-            ?.addOnFailureListener {
+            .addOnFailureListener {
+                btnConfirm.isEnabled = true
+                btnConfirm.text = "UPDATE PASSWORD"
                 Toast.makeText(this, "Failed to update password. Please re-login and try again.", Toast.LENGTH_LONG).show()
             }
     }
