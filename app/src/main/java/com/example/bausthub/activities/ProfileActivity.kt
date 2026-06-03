@@ -14,6 +14,7 @@ import com.example.bausthub.R
 import com.example.bausthub.adapters.PostAdapter
 import com.example.bausthub.models.Post
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 
@@ -24,16 +25,28 @@ class ProfileActivity : AppCompatActivity() {
     private lateinit var postAdapter: PostAdapter
     private var postList = mutableListOf<Post>()
     private var profileListener: com.google.firebase.firestore.ListenerRegistration? = null
+    private var dataListener: com.google.firebase.firestore.ListenerRegistration? = null
+    private var followListener: com.google.firebase.firestore.ListenerRegistration? = null
 
     private lateinit var tvName: TextView
     private lateinit var tvBio: TextView
     private lateinit var tvEmail: TextView
     private lateinit var rvProfileFeed: RecyclerView
     private lateinit var ivProfilePic: ImageView
+    private lateinit var ivCoverPhoto: View
     
     private lateinit var tvPostCount: TextView
     private lateinit var tvFollowersCount: TextView
     private lateinit var tvFollowingCount: TextView
+
+    private lateinit var btnBack: ImageButton
+    private lateinit var btnFollowProfile: Button
+    private lateinit var btnProfileMenu: LinearLayout
+    private lateinit var btnVault: LinearLayout
+    private lateinit var btnAdd: ImageButton
+
+    private var targetUid: String? = null
+    private var isOwnProfile = true
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -42,29 +55,63 @@ class ProfileActivity : AppCompatActivity() {
         auth = FirebaseAuth.getInstance()
         db = FirebaseFirestore.getInstance()
 
+        targetUid = intent.getStringExtra("userId")
+        val currentUid = auth.currentUser?.uid ?: ""
+        isOwnProfile = targetUid == null || targetUid == currentUid
+        if (targetUid == null) targetUid = currentUid
+
         tvName = findViewById(R.id.tvProfileName)
         tvBio = findViewById(R.id.tvProfileBio)
         tvEmail = findViewById(R.id.tvProfileEmail)
         rvProfileFeed = findViewById(R.id.rvProfileFeed)
         ivProfilePic = findViewById(R.id.ivProfilePic)
+        ivCoverPhoto = findViewById(R.id.coverPhoto)
         
         tvPostCount = findViewById(R.id.tvPostCount)
         tvFollowersCount = findViewById(R.id.tvFollowersCount)
         tvFollowingCount = findViewById(R.id.tvFollowingCount)
 
+        btnBack = findViewById(R.id.btnBack)
+        btnFollowProfile = findViewById(R.id.btnFollowProfile)
+        btnProfileMenu = findViewById(R.id.btnProfileMenu)
+        btnVault = findViewById(R.id.btnVault)
+        btnAdd = findViewById(R.id.btnAdd)
+
         rvProfileFeed.layoutManager = LinearLayoutManager(this)
         postAdapter = PostAdapter(postList)
         rvProfileFeed.adapter = postAdapter
         
-        val btnProfileMenu = findViewById<LinearLayout>(R.id.btnProfileMenu)
+        setupUI()
+        setupListeners()
+        loadUserPosts()
+    }
+
+    private fun setupUI() {
+        if (isOwnProfile) {
+            btnBack.visibility = View.GONE
+            btnFollowProfile.visibility = View.GONE
+            btnProfileMenu.visibility = View.VISIBLE
+            btnVault.visibility = View.VISIBLE
+            btnAdd.visibility = View.VISIBLE
+        } else {
+            btnBack.visibility = View.VISIBLE
+            btnFollowProfile.visibility = View.VISIBLE
+            btnProfileMenu.visibility = View.GONE
+            btnVault.visibility = View.GONE
+            btnAdd.visibility = View.GONE
+            
+            btnBack.setOnClickListener { finish() }
+            
+            btnFollowProfile.setOnClickListener {
+                toggleFollow()
+            }
+        }
+
         val btnHome = findViewById<ImageButton>(R.id.btnNavHome)
         val btnSearch = findViewById<ImageButton>(R.id.btnNavSearch)
         val btnNotifications = findViewById<ImageButton>(R.id.btnNavNotifications)
-        val btnAdd = findViewById<ImageButton>(R.id.btnAdd)
-        
         val btnMyPosts = findViewById<LinearLayout>(R.id.btnMyPosts)
-        val btnVault = findViewById<LinearLayout>(R.id.btnVault)
-        
+
         btnMyPosts.setOnClickListener {
             updateTabUI(true)
             loadUserPosts()
@@ -103,16 +150,89 @@ class ProfileActivity : AppCompatActivity() {
             showProfileMenu(view)
         }
 
-        loadUserData()
-        syncCounts()
         updateTabUI(true)
-        loadUserPosts()
+    }
+
+    private fun setupListeners() {
+        val uid = targetUid ?: return
+        val currentUid = auth.currentUser?.uid ?: ""
+
+        dataListener = db.collection("students").document(uid).addSnapshotListener { document, _ ->
+            if (document != null && document.exists()) {
+                tvName.text = document.getString("name")
+                tvEmail.text = document.getString("email") ?: "student@baust.edu.bd"
+                tvBio.text = document.getString("bio") ?: "BAUSTian Hubber"
+
+                tvPostCount.text = (document.getLong("postsCount") ?: 0).toString()
+                tvFollowersCount.text = (document.getLong("followersCount") ?: 0).toString()
+                tvFollowingCount.text = (document.getLong("followingCount") ?: 0).toString()
+
+                val profilePicUrl = document.getString("profileImage")
+                if (!profilePicUrl.isNullOrEmpty()) {
+                    Glide.with(this).load(profilePicUrl).into(ivProfilePic)
+                }
+                
+                val coverUrl = document.getString("coverImage")
+                if (!coverUrl.isNullOrEmpty()) {
+                    // Using background if it's a view, or we could add an ImageView in XML
+                    // For now, let's just use Glide to load into the view if it's an ImageView
+                    if (ivCoverPhoto is ImageView) {
+                        Glide.with(this).load(coverUrl).into(ivCoverPhoto as ImageView)
+                    }
+                }
+            }
+        }
+
+        if (!isOwnProfile) {
+            followListener = db.collection("students").document(uid).collection("followers").document(currentUid)
+                .addSnapshotListener { snapshot, _ ->
+                    if (snapshot != null && snapshot.exists()) {
+                        btnFollowProfile.text = "Following"
+                        btnFollowProfile.setBackgroundTintList(android.content.res.ColorStateList.valueOf(android.graphics.Color.GRAY))
+                        btnFollowProfile.setCompoundDrawablesWithIntrinsicBounds(android.R.drawable.checkbox_on_background, 0, 0, 0)
+                    } else {
+                        btnFollowProfile.text = "Follow Hubber"
+                        btnFollowProfile.setBackgroundTintList(android.content.res.ColorStateList.valueOf(android.graphics.Color.parseColor("#10B981")))
+                        btnFollowProfile.setCompoundDrawablesWithIntrinsicBounds(android.R.drawable.ic_input_add, 0, 0, 0)
+                    }
+                }
+        }
+    }
+
+    private fun toggleFollow() {
+        val uid = targetUid ?: return
+        val currentUid = auth.currentUser?.uid ?: return
+        
+        val followersRef = db.collection("students").document(uid).collection("followers").document(currentUid)
+        val followingRef = db.collection("students").document(currentUid).collection("following").document(uid)
+        
+        followersRef.get().addOnSuccessListener { doc ->
+            if (doc.exists()) {
+                followersRef.delete()
+                followingRef.delete()
+                db.collection("students").document(uid).update("followersCount", FieldValue.increment(-1))
+                db.collection("students").document(currentUid).update("followingCount", FieldValue.increment(-1))
+            } else {
+                followersRef.set(hashMapOf("timestamp" to System.currentTimeMillis()))
+                followingRef.set(hashMapOf("timestamp" to System.currentTimeMillis()))
+                db.collection("students").document(uid).update("followersCount", FieldValue.increment(1))
+                db.collection("students").document(currentUid).update("followingCount", FieldValue.increment(1))
+                
+                // Add Notification
+                val notification = hashMapOf(
+                    "type" to "follow",
+                    "fromId" to currentUid,
+                    "fromName" to (auth.currentUser?.displayName ?: "Someone"),
+                    "timestamp" to System.currentTimeMillis(),
+                    "message" to "started following you."
+                )
+                db.collection("students").document(uid).collection("notifications").add(notification)
+            }
+        }
     }
 
     private fun updateTabUI(isMyPosts: Boolean) {
         val btnMyPosts = findViewById<LinearLayout>(R.id.btnMyPosts)
-        val btnVault = findViewById<LinearLayout>(R.id.btnVault)
-        
         val ivMyPosts = btnMyPosts.getChildAt(0) as ImageView
         val tvMyPosts = btnMyPosts.getChildAt(1) as TextView
         
@@ -136,28 +256,6 @@ class ProfileActivity : AppCompatActivity() {
             tvVault.setTextColor(android.graphics.Color.WHITE)
             ivVault.setColorFilter(android.graphics.Color.WHITE)
         }
-    }
-
-    private fun syncCounts() {
-        val uid = auth.currentUser?.uid ?: return
-        
-        db.collection("posts").whereEqualTo("userId", uid).count()
-            .get(com.google.firebase.firestore.AggregateSource.SERVER)
-            .addOnSuccessListener { snapshot ->
-                db.collection("students").document(uid).update("postsCount", snapshot.count)
-            }
-            
-        db.collection("students").document(uid).collection("followers").count()
-            .get(com.google.firebase.firestore.AggregateSource.SERVER)
-            .addOnSuccessListener { snapshot ->
-                db.collection("students").document(uid).update("followersCount", snapshot.count)
-            }
-            
-        db.collection("students").document(uid).collection("following").count()
-            .get(com.google.firebase.firestore.AggregateSource.SERVER)
-            .addOnSuccessListener { snapshot ->
-                db.collection("students").document(uid).update("followingCount", snapshot.count)
-            }
     }
 
     private fun showProfileMenu(anchorView: View) {
@@ -192,7 +290,7 @@ class ProfileActivity : AppCompatActivity() {
     }
 
     private fun loadUserPosts() {
-        val uid = auth.currentUser?.uid ?: return
+        val uid = targetUid ?: return
         profileListener?.remove()
         profileListener = db.collection("posts")
             .whereEqualTo("userId", uid)
@@ -213,6 +311,7 @@ class ProfileActivity : AppCompatActivity() {
     }
 
     private fun loadSavedPosts() {
+        if (!isOwnProfile) return
         val uid = auth.currentUser?.uid ?: return
         profileListener?.remove()
         profileListener = db.collection("students").document(uid).collection("savedPosts")
@@ -232,29 +331,10 @@ class ProfileActivity : AppCompatActivity() {
             }
     }
 
-    private fun loadUserData() {
-        val uid = auth.currentUser?.uid ?: return
-
-        db.collection("students").document(uid).addSnapshotListener { document, _ ->
-            if (document != null && document.exists()) {
-                tvName.text = document.getString("name")
-                tvEmail.text = document.getString("email") ?: "student@baust.edu.bd"
-                val bio = document.getString("bio") ?: "BAUSTian Hubber"
-                tvBio.text = bio
-
-                val postCount = document.getLong("postsCount") ?: 0
-                val followersCount = document.getLong("followersCount") ?: 0
-                val followingCount = document.getLong("followingCount") ?: 0
-
-                tvPostCount.text = Math.max(0, postCount).toString()
-                tvFollowersCount.text = Math.max(0, followersCount).toString()
-                tvFollowingCount.text = Math.max(0, followingCount).toString()
-
-                val profilePicUrl = document.getString("profileImage")
-                if (!profilePicUrl.isNullOrEmpty()) {
-                    Glide.with(this).load(profilePicUrl).into(ivProfilePic)
-                }
-            }
-        }
+    override fun onDestroy() {
+        super.onDestroy()
+        profileListener?.remove()
+        dataListener?.remove()
+        followListener?.remove()
     }
 }

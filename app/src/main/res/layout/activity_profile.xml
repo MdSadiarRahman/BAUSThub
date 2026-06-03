@@ -25,9 +25,19 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp">
 
+                <ImageButton
+                    android:id="@+id/btnBack"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:src="@android:drawable/ic_menu_revert"
+                    app:tint="#1B7C43"
+                    android:visibility="gone" />
+
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_toEndOf="@id/btnBack"
                     android:orientation="vertical">
 
                     <TextView
@@ -282,6 +292,26 @@
                         android:textSize="15sp"
                         android:textStyle="italic" />
                 </LinearLayout>
+
+                <Button
+                    android:id="@+id/btnFollowProfile"
+                    android:layout_width="match_parent"
+                    android:layout_height="55dp"
+                    android:layout_marginHorizontal="24dp"
+                    android:layout_marginTop="24dp"
+                    android:backgroundTint="#10B981"
+                    android:text="Follow Hubber"
+                    android:textAllCaps="false"
+                    android:textColor="@color/white"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:visibility="gone"
+                    app:cornerRadius="16dp"
+                    app:icon="@android:drawable/ic_input_add"
+                    app:iconGravity="textStart"
+                    app:iconPadding="8dp"
+                    app:iconSize="20dp"
+                    app:iconTint="@color/white" />
             </LinearLayout>
 
             <LinearLayout

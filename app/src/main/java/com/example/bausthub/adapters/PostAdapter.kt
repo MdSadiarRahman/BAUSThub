@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.bausthub.R
 import com.example.bausthub.activities.ImageViewerActivity
+import com.example.bausthub.activities.ProfileActivity
 import com.example.bausthub.models.Post
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.firebase.auth.FirebaseAuth
@@ -24,6 +25,7 @@ class PostAdapter(private var posts: List<Post>) : RecyclerView.Adapter<PostAdap
 
     class PostViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val tvAuthorName: TextView = itemView.findViewById(R.id.tvAuthorName)
+        val ivUserAvatar: ImageView = itemView.findViewById(R.id.ivUserAvatar)
         val ivPostImage: ImageView = itemView.findViewById(R.id.ivPostImage)
         val tvPostCaption: TextView = itemView.findViewById(R.id.tvPostCaptionContainer)
         val tvPostTime: TextView = itemView.findViewById(R.id.tvPostTime)
@@ -57,6 +59,23 @@ class PostAdapter(private var posts: List<Post>) : RecyclerView.Adapter<PostAdap
 
         holder.tvAuthorName.text = post.authorName
         
+        db.collection("students").document(post.userId).addSnapshotListener { snapshot, _ ->
+            if (snapshot != null && snapshot.exists()) {
+                val profilePicUrl = snapshot.getString("profileImage")
+                if (!profilePicUrl.isNullOrEmpty()) {
+                    Glide.with(holder.itemView.context).load(profilePicUrl).into(holder.ivUserAvatar)
+                }
+            }
+        }
+
+        val openProfile = View.OnClickListener {
+            val intent = Intent(holder.itemView.context, ProfileActivity::class.java)
+            intent.putExtra("userId", post.userId)
+            holder.itemView.context.startActivity(intent)
+        }
+        holder.tvAuthorName.setOnClickListener(openProfile)
+        holder.ivUserAvatar.setOnClickListener(openProfile)
+
         val fullCaption = "${post.authorName}  ${post.caption}"
         val spannable = SpannableString(fullCaption)
         spannable.setSpan(
@@ -213,41 +232,6 @@ class PostAdapter(private var posts: List<Post>) : RecyclerView.Adapter<PostAdap
             }
         }
 
-        if (post.userId == currentUserId) {
-            holder.btnFollow.visibility = View.GONE
-        } else {
-            holder.btnFollow.visibility = View.VISIBLE
-            db.collection("students").document(currentUserId).collection("following").document(post.userId)
-                .addSnapshotListener { snapshot, _ ->
-                    if (snapshot != null && snapshot.exists()) {
-                        holder.btnFollow.text = " • Following"
-                        holder.btnFollow.setTextColor(android.graphics.Color.GRAY)
-                    } else {
-                        holder.btnFollow.text = " • Follow"
-                        holder.btnFollow.setTextColor(android.graphics.Color.parseColor("#10B981"))
-                    }
-                }
-
-            holder.btnFollow.setOnClickListener {
-                val followingRef = db.collection("students").document(currentUserId).collection("following").document(post.userId)
-                val followersRef = db.collection("students").document(post.userId).collection("followers").document(currentUserId)
-
-                followingRef.get().addOnSuccessListener { doc ->
-                    if (doc.exists()) {
-                        followingRef.delete()
-                        followersRef.delete()
-                        db.collection("students").document(currentUserId).update("followingCount", com.google.firebase.firestore.FieldValue.increment(-1))
-                        db.collection("students").document(post.userId).update("followersCount", com.google.firebase.firestore.FieldValue.increment(-1))
-                    } else {
-                        followingRef.set(hashMapOf("timestamp" to System.currentTimeMillis()))
-                        followersRef.set(hashMapOf("timestamp" to System.currentTimeMillis()))
-                        db.collection("students").document(currentUserId).update("followingCount", com.google.firebase.firestore.FieldValue.increment(1))
-                        db.collection("students").document(post.userId).update("followersCount", com.google.firebase.firestore.FieldValue.increment(1))
-                    }
-                }
-            }
-        }
-
         holder.btnMore.setOnClickListener {
             val dialog = BottomSheetDialog(holder.itemView.context)
             val view = LayoutInflater.from(holder.itemView.context).inflate(R.layout.dialog_post_options, null, false)
@@ -273,68 +257,6 @@ class PostAdapter(private var posts: List<Post>) : RecyclerView.Adapter<PostAdap
             dialog.setContentView(view)
             dialog.show()
         }
-    }
-
-    private fun showCommentsDialog(context: android.content.Context, post: Post) {
-        val dialog = BottomSheetDialog(context)
-        val view = LayoutInflater.from(context).inflate(R.layout.dialog_comments, null, false)
-        
-        val etComment = view.findViewById<EditText>(R.id.etComment)
-        val btnSend = view.findViewById<ImageButton>(R.id.btnSendComment)
-        val rvComments = view.findViewById<RecyclerView>(R.id.rvComments)
-        
-        val db = FirebaseFirestore.getInstance()
-        val currentUserId = FirebaseAuth.getInstance().currentUser?.uid ?: ""
-        
-        val commentsList = mutableListOf<com.example.bausthub.models.Comment>()
-        val adapter = CommentAdapter(commentsList)
-        rvComments.layoutManager = androidx.recyclerview.widget.LinearLayoutManager(context)
-        rvComments.adapter = adapter
-
-        db.collection("posts").document(post.postId).collection("comments")
-            .orderBy("timestamp", com.google.firebase.firestore.Query.Direction.ASCENDING)
-            .addSnapshotListener { snapshot, _ ->
-                if (snapshot != null) {
-                    commentsList.clear()
-                    for (doc in snapshot.documents) {
-                        val comment = doc.toObject(com.example.bausthub.models.Comment::class.java)
-                        if (comment != null) commentsList.add(comment)
-                    }
-                    adapter.notifyDataSetChanged()
-                }
-            }
-
-        btnSend.setOnClickListener {
-            val text = etComment.text.toString().trim()
-            if (text.isNotEmpty()) {
-                btnSend.isEnabled = false
-                
-                val user = FirebaseAuth.getInstance().currentUser
-                val userName = user?.displayName ?: "BAUSTian"
-                
-                val comment = hashMapOf(
-                    "userId" to currentUserId,
-                    "userName" to userName,
-                    "text" to text,
-                    "timestamp" to System.currentTimeMillis()
-                )
-                
-                db.collection("posts").document(post.postId).collection("comments")
-                    .add(comment)
-                    .addOnSuccessListener {
-                        etComment.text.clear()
-                        db.collection("posts").document(post.postId).update("commentsCount", com.google.firebase.firestore.FieldValue.increment(1))
-                        btnSend.isEnabled = true
-                    }
-                    .addOnFailureListener {
-                        Toast.makeText(context, "Failed to send: ${it.message}", Toast.LENGTH_SHORT).show()
-                        btnSend.isEnabled = true
-                    }
-            }
-        }
-
-        dialog.setContentView(view)
-        dialog.show()
     }
 
     private fun showEditDialog(context: android.content.Context, post: Post) {
