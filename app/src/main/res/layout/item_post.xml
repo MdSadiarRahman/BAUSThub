@@ -165,11 +165,11 @@
                 android:contentDescription="Save post" />
         </RelativeLayout>
 
-        <!-- Likes Count -->
+        <!-- Likes and Comments Count -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
+            android:orientation="horizontal"
             android:paddingHorizontal="16dp"
             android:paddingTop="4dp">
 
@@ -181,6 +181,130 @@
                 android:textColor="@color/text_dark"
                 android:textSize="13sp"
                 android:textStyle="bold" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/btnOpenComment"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:paddingHorizontal="16dp"
+            android:text="ADD A COMMENT"
+            android:textColor="@color/text_grey"
+            android:textSize="12sp"
+            android:textStyle="bold" />
+
+        <!-- Expanded Comment Section (Discussion Space) -->
+        <LinearLayout
+            android:id="@+id/layoutDiscussionSpace"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="gone"
+            android:paddingTop="12dp">
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginHorizontal="16dp"
+                android:background="#EEEEEE" />
+
+            <TextView
+                android:id="@+id/btnHideDiscussion"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="16dp"
+                android:text="HIDE DISCUSSION SPACE"
+                android:textColor="@color/text_grey"
+                android:textSize="11sp"
+                android:textStyle="bold" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginHorizontal="16dp"
+                android:background="#EEEEEE" />
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingHorizontal="16dp"
+                android:paddingVertical="12dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:drawableStart="@drawable/ic_comment"
+                    android:drawablePadding="8dp"
+                    android:text="HUB CONVERSATION"
+                    android:textColor="@color/text_dark"
+                    android:textSize="13sp"
+                    android:textStyle="bold"
+                    app:drawableTint="@color/baust_green" />
+
+                <TextView
+                    android:id="@+id/tvDiscussionCommentCount"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:background="@drawable/bg_comment_count"
+                    android:paddingHorizontal="8dp"
+                    android:paddingVertical="2dp"
+                    android:text="0 COMMENTS"
+                    android:textColor="@color/text_grey"
+                    android:textSize="11sp"
+                    android:textStyle="bold" />
+            </RelativeLayout>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvDiscussionComments"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:maxHeight="300dp"
+                android:paddingHorizontal="16dp"
+                android:nestedScrollingEnabled="false" />
+
+            <TextView
+                android:id="@+id/tvNoCommentsLabel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:padding="20dp"
+                android:text="NO HUB DISCUSSIONS YET.\nBe the first to share your thoughts!"
+                android:textColor="@color/text_grey"
+                android:textSize="12sp"
+                android:visibility="gone" />
+
+            <!-- Inline Comment Input -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingHorizontal="16dp"
+                android:paddingVertical="12dp">
+
+                <EditText
+                    android:id="@+id/etDiscussionComment"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_comment_input"
+                    android:hint="Join the discussion..."
+                    android:paddingHorizontal="16dp"
+                    android:paddingVertical="10dp"
+                    android:textColor="@color/text_dark"
+                    android:textSize="13sp" />
+
+                <ImageButton
+                    android:id="@+id/btnSendDiscussionComment"
+                    android:layout_width="44dp"
+                    android:layout_height="44dp"
+                    android:layout_marginStart="8dp"
+                    android:background="@drawable/circle_light_bg"
+                    android:src="@android:drawable/ic_menu_send"
+                    app:tint="@color/baust_green" />
+            </LinearLayout>
         </LinearLayout>
 
     </LinearLayout>

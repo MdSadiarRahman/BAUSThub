@@ -33,7 +33,16 @@ class PostAdapter(private var posts: List<Post>) : RecyclerView.Adapter<PostAdap
         val btnShare: ImageButton = itemView.findViewById(R.id.btnShare)
         val btnBookmark: ImageButton = itemView.findViewById(R.id.btnBookmark)
         val tvLikeCount: TextView = itemView.findViewById(R.id.tvLikeCount)
+        val btnOpenComment: TextView = itemView.findViewById(R.id.btnOpenComment)
         val btnFollow: TextView = itemView.findViewById(R.id.btnFollow)
+        
+        val layoutDiscussionSpace: LinearLayout = itemView.findViewById(R.id.layoutDiscussionSpace)
+        val btnHideDiscussion: TextView = itemView.findViewById(R.id.btnHideDiscussion)
+        val rvDiscussionComments: RecyclerView = itemView.findViewById(R.id.rvDiscussionComments)
+        val tvDiscussionCommentCount: TextView = itemView.findViewById(R.id.tvDiscussionCommentCount)
+        val tvNoCommentsLabel: TextView = itemView.findViewById(R.id.tvNoCommentsLabel)
+        val etDiscussionComment: EditText = itemView.findViewById(R.id.etDiscussionComment)
+        val btnSendDiscussionComment: ImageButton = itemView.findViewById(R.id.btnSendDiscussionComment)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PostViewHolder {
@@ -92,16 +101,16 @@ class PostAdapter(private var posts: List<Post>) : RecyclerView.Adapter<PostAdap
         db.collection("posts").document(post.postId).collection("likes").document(currentUserId)
             .addSnapshotListener { snapshot, _ ->
                 if (snapshot != null && snapshot.exists()) {
-                    holder.btnLike.setImageResource(R.drawable.ic_like) // Should be filled icon
                     holder.btnLike.setColorFilter(android.graphics.Color.RED)
                 } else {
-                    holder.btnLike.setImageResource(R.drawable.ic_like) // Outline icon
                     holder.btnLike.setColorFilter(android.graphics.Color.GRAY)
                 }
             }
 
         // Like Click
         holder.btnLike.setOnClickListener {
+            if (post.postId.isEmpty()) return@setOnClickListener
+            
             val likeRef = db.collection("posts").document(post.postId).collection("likes").document(currentUserId)
             likeRef.get().addOnSuccessListener { doc ->
                 if (doc.exists()) {
@@ -111,6 +120,8 @@ class PostAdapter(private var posts: List<Post>) : RecyclerView.Adapter<PostAdap
                     likeRef.set(hashMapOf("timestamp" to System.currentTimeMillis()))
                     db.collection("posts").document(post.postId).update("likesCount", com.google.firebase.firestore.FieldValue.increment(1))
                 }
+            }.addOnFailureListener {
+                Toast.makeText(holder.itemView.context, "Error: ${it.message}", Toast.LENGTH_SHORT).show()
             }
         }
 
@@ -137,6 +148,60 @@ class PostAdapter(private var posts: List<Post>) : RecyclerView.Adapter<PostAdap
 
         // Like Count display
         holder.tvLikeCount.text = "${post.likesCount} BAUSTIANS LIKED"
+
+        // Comment Discussion Logic
+        val commentsList = mutableListOf<com.example.bausthub.models.Comment>()
+        val commentAdapter = CommentAdapter(commentsList)
+        holder.rvDiscussionComments.layoutManager = androidx.recyclerview.widget.LinearLayoutManager(holder.itemView.context)
+        holder.rvDiscussionComments.adapter = commentAdapter
+
+        fun toggleDiscussion(show: Boolean) {
+            if (show) {
+                holder.layoutDiscussionSpace.visibility = View.VISIBLE
+                holder.btnOpenComment.visibility = View.GONE
+                // Load Comments
+                db.collection("posts").document(post.postId).collection("comments")
+                    .orderBy("timestamp", com.google.firebase.firestore.Query.Direction.ASCENDING)
+                    .addSnapshotListener { snapshot, _ ->
+                        if (snapshot != null) {
+                            commentsList.clear()
+                            for (doc in snapshot.documents) {
+                                val comment = doc.toObject(com.example.bausthub.models.Comment::class.java)
+                                if (comment != null) commentsList.add(comment)
+                            }
+                            commentAdapter.notifyDataSetChanged()
+                            holder.tvDiscussionCommentCount.text = "${commentsList.size} COMMENTS"
+                            holder.tvNoCommentsLabel.visibility = if (commentsList.isEmpty()) View.VISIBLE else View.GONE
+                        }
+                    }
+            } else {
+                holder.layoutDiscussionSpace.visibility = View.GONE
+                holder.btnOpenComment.visibility = View.VISIBLE
+            }
+        }
+
+        holder.btnComment.setOnClickListener { toggleDiscussion(true) }
+        holder.btnOpenComment.setOnClickListener { toggleDiscussion(true) }
+        holder.btnHideDiscussion.setOnClickListener { toggleDiscussion(false) }
+
+        holder.btnSendDiscussionComment.setOnClickListener {
+            val text = holder.etDiscussionComment.text.toString().trim()
+            if (text.isNotEmpty()) {
+                val user = FirebaseAuth.getInstance().currentUser
+                val comment = hashMapOf(
+                    "userId" to currentUserId,
+                    "userName" to (user?.displayName ?: "BAUSTian"),
+                    "text" to text,
+                    "timestamp" to System.currentTimeMillis()
+                )
+                db.collection("posts").document(post.postId).collection("comments")
+                    .add(comment)
+                    .addOnSuccessListener {
+                        holder.etDiscussionComment.text.clear()
+                        db.collection("posts").document(post.postId).update("commentsCount", com.google.firebase.firestore.FieldValue.increment(1))
+                    }
+            }
+        }
 
         // Follow Logic
         if (post.userId == currentUserId) {
@@ -209,22 +274,55 @@ class PostAdapter(private var posts: List<Post>) : RecyclerView.Adapter<PostAdap
         
         val etComment = view.findViewById<EditText>(R.id.etComment)
         val btnSend = view.findViewById<ImageButton>(R.id.btnSendComment)
+        val rvComments = view.findViewById<RecyclerView>(R.id.rvComments)
+        
         val db = FirebaseFirestore.getInstance()
         val currentUserId = FirebaseAuth.getInstance().currentUser?.uid ?: ""
+        
+        val commentsList = mutableListOf<com.example.bausthub.models.Comment>()
+        val adapter = CommentAdapter(commentsList)
+        rvComments.layoutManager = androidx.recyclerview.widget.LinearLayoutManager(context)
+        rvComments.adapter = adapter
+
+        // Fetch Comments
+        db.collection("posts").document(post.postId).collection("comments")
+            .orderBy("timestamp", com.google.firebase.firestore.Query.Direction.ASCENDING)
+            .addSnapshotListener { snapshot, _ ->
+                if (snapshot != null) {
+                    commentsList.clear()
+                    for (doc in snapshot.documents) {
+                        val comment = doc.toObject(com.example.bausthub.models.Comment::class.java)
+                        if (comment != null) commentsList.add(comment)
+                    }
+                    adapter.notifyDataSetChanged()
+                }
+            }
 
         btnSend.setOnClickListener {
             val text = etComment.text.toString().trim()
             if (text.isNotEmpty()) {
+                btnSend.isEnabled = false // Prevent multiple clicks
+                
+                val user = FirebaseAuth.getInstance().currentUser
+                val userName = user?.displayName ?: "BAUSTian"
+                
                 val comment = hashMapOf(
                     "userId" to currentUserId,
+                    "userName" to userName,
                     "text" to text,
                     "timestamp" to System.currentTimeMillis()
                 )
+                
                 db.collection("posts").document(post.postId).collection("comments")
                     .add(comment)
                     .addOnSuccessListener {
                         etComment.text.clear()
                         db.collection("posts").document(post.postId).update("commentsCount", com.google.firebase.firestore.FieldValue.increment(1))
+                        btnSend.isEnabled = true
+                    }
+                    .addOnFailureListener {
+                        Toast.makeText(context, "Failed to send: ${it.message}", Toast.LENGTH_SHORT).show()
+                        btnSend.isEnabled = true
                     }
             }
         }
