@@ -282,25 +282,6 @@
                         android:textSize="15sp"
                         android:textStyle="italic" />
                 </LinearLayout>
-
-                <Button
-                    android:id="@+id/btnEditProfile"
-                    android:layout_width="match_parent"
-                    android:layout_height="55dp"
-                    android:layout_marginHorizontal="24dp"
-                    android:layout_marginTop="24dp"
-                    android:backgroundTint="#1B7C43"
-                    android:text="Edit Hub Profile"
-                    android:textAllCaps="false"
-                    android:textColor="@color/white"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
-                    app:cornerRadius="16dp"
-                    app:icon="@android:drawable/ic_menu_edit"
-                    app:iconGravity="textStart"
-                    app:iconPadding="8dp"
-                    app:iconSize="20dp"
-                    app:iconTint="@color/white" />
             </LinearLayout>
 
             <LinearLayout

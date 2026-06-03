@@ -62,14 +62,9 @@ class ProfileActivity : AppCompatActivity() {
         val btnNotifications = findViewById<ImageButton>(R.id.btnNavNotifications)
         val btnAdd = findViewById<ImageButton>(R.id.btnAdd)
         
-        val btnEditProfile = findViewById<Button>(R.id.btnEditProfile)
         val btnMyPosts = findViewById<LinearLayout>(R.id.btnMyPosts)
         val btnVault = findViewById<LinearLayout>(R.id.btnVault)
         
-        btnEditProfile.setOnClickListener {
-            startActivity(Intent(this, SettingsActivity::class.java))
-        }
-
         btnMyPosts.setOnClickListener {
             updateTabUI(true)
             loadUserPosts()
