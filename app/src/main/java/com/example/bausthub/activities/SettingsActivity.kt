@@ -59,6 +59,18 @@ class SettingsActivity : AppCompatActivity() {
         auth = FirebaseAuth.getInstance()
         db = FirebaseFirestore.getInstance()
 
+        // Initialize Cloudinary MediaManager
+        try {
+            val config = hashMapOf(
+                "cloud_name" to "dvjgbhfog",
+                "api_key" to "448829959477278",
+                "api_secret" to "uEx0_-X-2dzKH67PjiHGwBjCZhM"
+            )
+            MediaManager.init(this, config)
+        } catch (e: Exception) {
+            // Already initialized or other error
+        }
+
         etName = findViewById(R.id.etSettingsName)
         etBio = findViewById(R.id.etSettingsBio)
         btnConfirm = findViewById(R.id.btnConfirmChanges)

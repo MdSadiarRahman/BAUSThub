@@ -33,7 +33,7 @@ class ProfileActivity : AppCompatActivity() {
     private lateinit var tvEmail: TextView
     private lateinit var rvProfileFeed: RecyclerView
     private lateinit var ivProfilePic: ImageView
-    private lateinit var ivCoverPhoto: View
+    private lateinit var ivCoverPhoto: ImageView
     
     private lateinit var tvPostCount: TextView
     private lateinit var tvFollowersCount: TextView
@@ -174,11 +174,7 @@ class ProfileActivity : AppCompatActivity() {
                 
                 val coverUrl = document.getString("coverImage")
                 if (!coverUrl.isNullOrEmpty()) {
-                    // Using background if it's a view, or we could add an ImageView in XML
-                    // For now, let's just use Glide to load into the view if it's an ImageView
-                    if (ivCoverPhoto is ImageView) {
-                        Glide.with(this).load(coverUrl).into(ivCoverPhoto as ImageView)
-                    }
+                    Glide.with(this).load(coverUrl).into(ivCoverPhoto)
                 }
             }
         }

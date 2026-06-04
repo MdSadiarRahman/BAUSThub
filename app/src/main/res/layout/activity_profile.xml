@@ -98,11 +98,12 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="32dp">
 
-                <View
+                <ImageView
                     android:id="@+id/coverPhoto"
                     android:layout_width="match_parent"
                     android:layout_height="180dp"
-                    android:background="@drawable/bg_cover_gradient"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/bg_cover_gradient"
                     app:layout_constraintTop_toTopOf="parent" />
 
                 <View
