@@ -44,6 +44,7 @@ class ProfileActivity : AppCompatActivity() {
     private lateinit var btnProfileMenu: LinearLayout
     private lateinit var btnVault: LinearLayout
     private lateinit var btnAdd: ImageButton
+    private lateinit var bottomNavContainer: View
 
     private var targetUid: String? = null
     private var isOwnProfile = true
@@ -76,6 +77,7 @@ class ProfileActivity : AppCompatActivity() {
         btnProfileMenu = findViewById(R.id.btnProfileMenu)
         btnVault = findViewById(R.id.btnVault)
         btnAdd = findViewById(R.id.btnAdd)
+        bottomNavContainer = findViewById(R.id.bottomNavContainer)
 
         rvProfileFeed.layoutManager = LinearLayoutManager(this)
         postAdapter = PostAdapter(postList)
@@ -93,12 +95,14 @@ class ProfileActivity : AppCompatActivity() {
             btnProfileMenu.visibility = View.VISIBLE
             btnVault.visibility = View.VISIBLE
             btnAdd.visibility = View.VISIBLE
+            bottomNavContainer.visibility = View.VISIBLE
         } else {
             btnBack.visibility = View.VISIBLE
             btnFollowProfile.visibility = View.VISIBLE
             btnProfileMenu.visibility = View.GONE
             btnVault.visibility = View.GONE
             btnAdd.visibility = View.GONE
+            bottomNavContainer.visibility = View.GONE
             
             btnBack.setOnClickListener { finish() }
             
