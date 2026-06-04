@@ -70,8 +70,11 @@ class LoginActivity : AppCompatActivity() {
         }
 
         googleButton.setOnClickListener {
-            val signInIntent = googleSignInClient.signInIntent
-            googleSignInLauncher.launch(signInIntent)
+            // Force account picker to show every time
+            googleSignInClient.signOut().addOnCompleteListener {
+                val signInIntent = googleSignInClient.signInIntent
+                googleSignInLauncher.launch(signInIntent)
+            }
         }
 
         goRegisterText.setOnClickListener {

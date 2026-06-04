@@ -52,7 +52,7 @@
                 android:inputType="textPersonName"
                 android:paddingHorizontal="16dp"
                 android:textColor="@color/text_dark"
-                android:textColorHint="@color/text_grey" />
+                android:textColorHint="@color/hint_dark" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -73,7 +73,7 @@
                 android:inputType="textEmailAddress"
                 android:paddingHorizontal="16dp"
                 android:textColor="@color/text_dark"
-                android:textColorHint="@color/text_grey" />
+                android:textColorHint="@color/hint_dark" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -94,7 +94,7 @@
                 android:inputType="textPassword"
                 android:paddingHorizontal="16dp"
                 android:textColor="@color/text_dark"
-                android:textColorHint="@color/text_grey" />
+                android:textColorHint="@color/hint_dark" />
 
         </LinearLayout>
 

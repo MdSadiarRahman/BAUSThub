@@ -294,6 +294,7 @@
                     android:paddingHorizontal="16dp"
                     android:paddingVertical="10dp"
                     android:textColor="@color/text_dark"
+                    android:textColorHint="@color/hint_dark"
                     android:textSize="13sp" />
 
                 <ImageButton

@@ -7,6 +7,7 @@
     <color name="bg_light">#F8FAFC</color>
     <color name="input_bg">#F1F5F9</color>
     <color name="text_grey">#64748B</color>
+    <color name="hint_dark">#334155</color>
     <color name="text_dark">#1E293B</color>
     <color name="border_grey">#E2E8F0</color>
     <color name="feed_bg">#F2F6F3</color>

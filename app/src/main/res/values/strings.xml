@@ -28,9 +28,9 @@
     <string name="full_name_label">Full Name</string>
     <string name="email_label">BAUST Email</string>
     <string name="password_label">Password</string>
-    <string name="full_name_hint">John Doe</string>
+    <string name="full_name_hint">Your Full Name</string>
     <string name="email_hint">name@baust.edu.bd</string>
-    <string name="password_hint">••••••••</string>
+    <string name="password_hint">minimum 6 digit</string>
     <string name="sign_up">Sign Up</string>
     <string name="sign_in">Sign In</string>
     <string name="already_have_account">Already have an account? </string>
