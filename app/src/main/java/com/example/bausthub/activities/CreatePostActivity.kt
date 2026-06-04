@@ -153,9 +153,11 @@ class CreatePostActivity : AppCompatActivity() {
 
             db.collection("posts")
                 .add(post)
-                .addOnSuccessListener {
+                .addOnSuccessListener { postDoc ->
                     db.collection("students").document(uid)
                         .update("postsCount", com.google.firebase.firestore.FieldValue.increment(1))
+
+                    sendNotificationsToFollowers(uid, authorName, postDoc.id)
 
                     setLoading(false)
                     Toast.makeText(this, "Post shared successfully!", Toast.LENGTH_SHORT).show()
@@ -166,6 +168,26 @@ class CreatePostActivity : AppCompatActivity() {
                     Toast.makeText(this, "Failed to save post data", Toast.LENGTH_SHORT).show()
                 }
         }
+    }
+
+    private fun sendNotificationsToFollowers(uid: String, authorName: String, postId: String) {
+        db.collection("students").document(uid).collection("followers")
+            .get()
+            .addOnSuccessListener { snapshot ->
+                for (doc in snapshot.documents) {
+                    val followerId = doc.id
+                    val notification = hashMapOf(
+                        "type" to "post",
+                        "fromId" to uid,
+                        "fromName" to authorName,
+                        "timestamp" to System.currentTimeMillis(),
+                        "message" to "uploaded a new post.",
+                        "isRead" to false,
+                        "postId" to postId
+                    )
+                    db.collection("students").document(followerId).collection("notifications").add(notification)
+                }
+            }
     }
 
     private fun setLoading(isLoading: Boolean) {

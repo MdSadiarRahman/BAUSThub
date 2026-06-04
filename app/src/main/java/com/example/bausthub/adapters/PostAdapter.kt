@@ -139,6 +139,23 @@ class PostAdapter(private var posts: List<Post>) : RecyclerView.Adapter<PostAdap
                 } else {
                     likeRef.set(hashMapOf("timestamp" to System.currentTimeMillis()))
                     db.collection("posts").document(post.postId).update("likesCount", com.google.firebase.firestore.FieldValue.increment(1))
+                    
+                    // Add Like Notification
+                    if (post.userId != currentUserId) {
+                        db.collection("students").document(currentUserId).get().addOnSuccessListener { userDoc ->
+                            val currentUserName = userDoc.getString("name") ?: "Someone"
+                            val notification = hashMapOf(
+                                "type" to "like",
+                                "fromId" to currentUserId,
+                                "fromName" to currentUserName,
+                                "timestamp" to System.currentTimeMillis(),
+                                "message" to "liked your post.",
+                                "isRead" to false,
+                                "postId" to post.postId
+                            )
+                            db.collection("students").document(post.userId).collection("notifications").add(notification)
+                        }
+                    }
                 }
             }
         }

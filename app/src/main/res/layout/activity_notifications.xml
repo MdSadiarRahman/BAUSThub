@@ -48,10 +48,12 @@
 
             <!-- Dashed Border Card for Empty State -->
             <FrameLayout
+                android:id="@+id/emptyState"
                 android:layout_width="match_parent"
                 android:layout_height="250dp"
                 android:background="@drawable/dashed_border_card"
-                android:padding="20dp">
+                android:padding="20dp"
+                android:visibility="gone">
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -63,6 +65,12 @@
                     android:textSize="18sp"
                     android:textStyle="bold" />
             </FrameLayout>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvNotifications"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:nestedScrollingEnabled="false" />
 
         </LinearLayout>
     </ScrollView>

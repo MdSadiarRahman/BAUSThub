@@ -41,4 +41,6 @@
     <string name="continue_with_google">Continue with Google</string>
     <string name="baust_part">BAUST</string>
     <string name="hub_part">hub</string>
+    <string name="user_dept_batch">%1$s | %2$s</string>
+    <string name="go_to_profile">Go to profile</string>
 </resources>

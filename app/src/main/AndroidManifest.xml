@@ -59,6 +59,10 @@
             android:exported="false" />
 
         <activity
+            android:name=".activities.PostDetailActivity"
+            android:exported="false" />
+
+        <activity
             android:name=".MainActivity"
             android:exported="false" />
 

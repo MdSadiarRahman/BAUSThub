@@ -224,7 +224,8 @@ class ProfileActivity : AppCompatActivity() {
                     "fromId" to currentUid,
                     "fromName" to (auth.currentUser?.displayName ?: "Someone"),
                     "timestamp" to System.currentTimeMillis(),
-                    "message" to "started following you."
+                    "message" to "started following you.",
+                    "isRead" to false
                 )
                 db.collection("students").document(uid).collection("notifications").add(notification)
             }
